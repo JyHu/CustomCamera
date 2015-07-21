@@ -66,6 +66,16 @@ static CGFloat commonTipsLabelHeight = 20.0f;
     return YES;
 }
 
+- (BOOL)shouldAutorotate
+{
+    return NO;
+}
+
+- (NSUInteger)supportedInterfaceOrientations
+{
+    return UIInterfaceOrientationPortrait;
+}
+
 - (void)viewWillAppear:(BOOL)animated
 {
     

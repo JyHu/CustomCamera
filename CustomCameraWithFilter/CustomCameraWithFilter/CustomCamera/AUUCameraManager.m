@@ -15,6 +15,16 @@
 
 static NSString *adjustingFocusKey = @"adjustingFocus";
 
+/**
+ *  @author JyHu, 15-07-21 14:07:32
+ *
+ *  使用CALayer可以做实时滤镜处理，但是当手机旋转的时候图片内容也会旋转变形
+ *  如果用AVCaptureVideoPreviewLayer的话没法做实时滤镜处理
+ *
+ *  @since  v 1.0
+ */
+#define kUseCaptureVideoLayer 1
+
 @interface AUUCameraManager()
 <
 AVCaptureVideoDataOutputSampleBufferDelegate,
@@ -23,7 +33,13 @@ AVCaptureMetadataOutputObjectsDelegate
 
 @property (retain, nonatomic) AVCaptureSession *p_captureSession;
 @property (retain, nonatomic) UIImage *p_image;
-//@property (assign, nonatomic) AVCaptureVideoPreviewLayer *p_captureVideoPreviewLayer;
+
+#ifdef kUseCaptureVideoLayer
+@property (assign, nonatomic) AVCaptureVideoPreviewLayer *p_captureVideoPreviewLayer;
+#else
+@property (retain, nonatomic) CALayer *p_layer;
+#endif
+
 @property (assign, nonatomic) BOOL p_adjustingFocus;
 @property (retain, nonatomic) AVCaptureDevice *p_captureDevice;
 @property (assign, nonatomic) AUUDeviceFlashMode p_deviceFlashMode;
@@ -36,7 +52,7 @@ AVCaptureMetadataOutputObjectsDelegate
 @property (assign, nonatomic) BOOL p_wantsTakePictureWhtnFocusedOK;
 @property (retain, nonatomic) CIFilter *p_filter;
 
-@property (retain, nonatomic) CALayer *p_layer;
+
 
 @end
 
@@ -48,7 +64,13 @@ AVCaptureMetadataOutputObjectsDelegate
 
 @synthesize p_captureSession = _p_captureSession;
 @synthesize p_image = _p_image;
-//@synthesize p_captureVideoPreviewLayer = _p_captureVideoPreviewLayer;
+
+#ifdef kUseCaptureVideoLayer
+@synthesize p_captureVideoPreviewLayer = _p_captureVideoPreviewLayer;
+#else
+@synthesize p_layer = _p_layer;
+#endif
+
 @synthesize p_adjustingFocus = _p_adjustingFocus;
 @synthesize p_captureDevice = _p_captureDevice;
 @synthesize p_deviceFlashMode = _p_deviceFlashMode;
@@ -59,8 +81,6 @@ AVCaptureMetadataOutputObjectsDelegate
 @synthesize p_videoDimensions = _p_videoDimensions;
 @synthesize p_wantsTakePictureWhtnFocusedOK = _p_wantsTakePictureWhtnFocusedOK;
 @synthesize p_filter = _p_filter;
-
-@synthesize p_layer = _p_layer;
 
 
 - (id)init
@@ -152,17 +172,6 @@ AVCaptureMetadataOutputObjectsDelegate
             
             outputImage = self.p_filter.outputImage;
         }
-        else
-        {
-            NSArray *filters = [outputImage autoAdjustmentFilters];
-            
-            for (CIFilter *ft in filters)
-            {
-                [ft setValue:outputImage forKey:kCIInputImageKey];
-                
-                outputImage = ft.outputImage;
-            }
-        }
         
         if (self.p_faceObject != nil)
         {
@@ -198,9 +207,11 @@ AVCaptureMetadataOutputObjectsDelegate
         
         dispatch_async(dispatch_get_main_queue(), ^{
             
-//            self.p_captureVideoPreviewLayer.contents = (__bridge id)(cgImage);
-            
+#ifdef kUseCaptureVideoLayer
+            self.p_captureVideoPreviewLayer.contents = (__bridge id)(cgImage);
+#else
             self.p_layer.contents = (__bridge id)(cgImage);
+#endif
             
             CGImageRelease(cgImage);
         });
@@ -427,46 +438,52 @@ AVCaptureMetadataOutputObjectsDelegate
         return;
     }
     
-//    self.p_captureVideoPreviewLayer = [AVCaptureVideoPreviewLayer layerWithSession:self.p_captureSession];
-//    self.p_captureVideoPreviewLayer.frame = view.bounds;
-//    self.p_captureVideoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
-//    [view.layer insertSublayer:self.p_captureVideoPreviewLayer atIndex:0];
-    
+#ifdef kUseCaptureVideoLayer
+    self.p_captureVideoPreviewLayer = [AVCaptureVideoPreviewLayer layerWithSession:self.p_captureSession];
+    self.p_captureVideoPreviewLayer.frame = view.bounds;
+    self.p_captureVideoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+    [view.layer insertSublayer:self.p_captureVideoPreviewLayer atIndex:0];
+#else
     self.p_layer = [CALayer layer];
     self.p_layer.anchorPoint = CGPointZero;
     self.p_layer.bounds = view.bounds;
-    
-//    [view.layer insertSublayer:self.p_layer above:self.p_captureVideoPreviewLayer];
     [view.layer insertSublayer:self.p_layer atIndex:0];
+#endif
+    
 }
 
-- (void) changePreviewOrientation:(UIInterfaceOrientation)interfaceOrientation
+- (void) changePreviewOrientation:(UIDeviceOrientation)interfaceOrientation
 {
-//    if (!self.p_captureVideoPreviewLayer)
-//    {
-//        return;
-//    }
-//    
-//    [CATransaction begin];
-//    
-//    if (interfaceOrientation == UIInterfaceOrientationLandscapeRight)
-//    {
-//        self.p_captureVideoPreviewLayer.connection.videoOrientation = AVCaptureVideoOrientationLandscapeRight;
-//    }
-//    else if (interfaceOrientation == UIInterfaceOrientationLandscapeLeft)
-//    {
-//        self.p_captureVideoPreviewLayer.connection.videoOrientation = AVCaptureVideoOrientationLandscapeLeft;
-//    }
-//    else if (interfaceOrientation == UIInterfaceOrientationPortrait)
-//    {
-//        self.p_captureVideoPreviewLayer.connection.videoOrientation = AVCaptureVideoOrientationPortrait;
-//    }
-//    else
-//    {
-//        self.p_captureVideoPreviewLayer.connection.videoOrientation = AVCaptureVideoOrientationPortraitUpsideDown;
-//    }
-//    
-//    [CATransaction commit];
+    NSLog(@" -  %@  - ", @(interfaceOrientation));
+    
+#ifdef kUseCaptureVideoLayer
+    if (!self.p_captureVideoPreviewLayer)
+    {
+        return;
+    }
+    
+    [CATransaction begin];
+    
+    if (interfaceOrientation == UIInterfaceOrientationLandscapeRight)
+    {
+        self.p_captureVideoPreviewLayer.connection.videoOrientation = AVCaptureVideoOrientationLandscapeRight;
+    }
+    else if (interfaceOrientation == UIInterfaceOrientationLandscapeLeft)
+    {
+        self.p_captureVideoPreviewLayer.connection.videoOrientation = AVCaptureVideoOrientationLandscapeLeft;
+    }
+    else if (interfaceOrientation == UIInterfaceOrientationPortrait)
+    {
+        self.p_captureVideoPreviewLayer.connection.videoOrientation = AVCaptureVideoOrientationPortrait;
+    }
+    else
+    {
+        self.p_captureVideoPreviewLayer.connection.videoOrientation = AVCaptureVideoOrientationPortraitUpsideDown;
+    }
+    
+    [CATransaction commit];
+#endif
+    
 }
 
 - (void) changeCapturePosition:(AUUCaptureDevicePosition)position
@@ -577,8 +594,13 @@ AVCaptureMetadataOutputObjectsDelegate
     [self.p_captureSession stopRunning];
     
     self.p_captureSession = nil;
-//    self.p_captureVideoPreviewLayer = nil;
+    
+#ifdef kUseCaptureVideoLayer
+    self.p_captureVideoPreviewLayer = nil;
+#else
     self.p_layer = nil;
+#endif
+    
     self.p_image = nil;
     self.p_ciImage = nil;
     self.p_context = nil;
