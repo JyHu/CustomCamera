@@ -23,7 +23,7 @@ static NSString *adjustingFocusKey = @"adjustingFocus";
  *
  *  @since  v 1.0
  */
-#define kUseCaptureVideoLayer 1
+//#define kUseCaptureVideoLayer 1
 
 @interface AUUCameraManager()
 <
@@ -452,7 +452,7 @@ AVCaptureMetadataOutputObjectsDelegate
     
 }
 
-- (void) changePreviewOrientation:(UIDeviceOrientation)interfaceOrientation
+- (void) changePreviewOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
     NSLog(@" -  %@  - ", @(interfaceOrientation));
     

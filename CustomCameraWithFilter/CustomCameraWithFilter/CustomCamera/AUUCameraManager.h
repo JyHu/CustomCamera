@@ -48,7 +48,7 @@ typedef NS_ENUM(NSUInteger, AUUDeviceFlashMode) {
 - (void) captureImageNow;
 - (void) captureImageWhenFocusOK;
 - (void) embedPreviewInView:(UIView *)view;
-- (void) changePreviewOrientation:(UIDeviceOrientation)interfaceOrientation;
+- (void) changePreviewOrientation:(UIInterfaceOrientation)interfaceOrientation;
 - (void) changeCapturePosition:(AUUCaptureDevicePosition)position;
 - (void) changeDeviceFlashMode:(AUUDeviceFlashMode)flashMode;
 - (void) writeCurrentPictureToAlbumWithCompletion:(void (^)(NSURL *assetURL, NSError *error))completion;

@@ -8,6 +8,7 @@
 
 #import "ViewController.h"
 #import "AUUCameraViewController.h"
+#import "PlayViewController.h"
 
 @interface ViewController ()
 
@@ -20,9 +21,12 @@
     // Do any additional setup after loading the view, typically from a nib.
 }
 
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
-{
+- (IBAction)custom:(id)sender {
     [self presentViewController:[[AUUCameraViewController alloc] init] animated:YES completion:nil];
+}
+
+- (IBAction)more:(id)sender {
+    [self presentViewController:[[PlayViewController alloc] init] animated:YES completion:nil];
 }
 
 - (void)didReceiveMemoryWarning {

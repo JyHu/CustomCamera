@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1C62C6D81B5E44B20040D63B /* AUUMenu.m in Sources */ = {isa = PBXBuildFile; fileRef = 1C62C6D71B5E44B20040D63B /* AUUMenu.m */; };
+		1C62C6DB1B5E57470040D63B /* PlayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1C62C6DA1B5E57470040D63B /* PlayViewController.m */; };
 		99726AFD1B5B084B0038084C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 99726AFC1B5B084B0038084C /* main.m */; };
 		99726B001B5B084B0038084C /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 99726AFF1B5B084B0038084C /* AppDelegate.m */; };
 		99726B031B5B084B0038084C /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 99726B021B5B084B0038084C /* ViewController.m */; };
@@ -34,6 +36,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1C62C6D61B5E44B20040D63B /* AUUMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AUUMenu.h; path = CustomCamera/AUUMenu.h; sourceTree = "<group>"; };
+		1C62C6D71B5E44B20040D63B /* AUUMenu.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AUUMenu.m; path = CustomCamera/AUUMenu.m; sourceTree = "<group>"; };
+		1C62C6D91B5E57470040D63B /* PlayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayViewController.h; sourceTree = "<group>"; };
+		1C62C6DA1B5E57470040D63B /* PlayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlayViewController.m; sourceTree = "<group>"; };
 		99726AF71B5B084B0038084C /* CustomCameraWithFilter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CustomCameraWithFilter.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		99726AFB1B5B084B0038084C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		99726AFC1B5B084B0038084C /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -107,6 +113,8 @@
 				99726AFF1B5B084B0038084C /* AppDelegate.m */,
 				99726B011B5B084B0038084C /* ViewController.h */,
 				99726B021B5B084B0038084C /* ViewController.m */,
+				1C62C6D91B5E57470040D63B /* PlayViewController.h */,
+				1C62C6DA1B5E57470040D63B /* PlayViewController.m */,
 				99726B201B5B08520038084C /* CustomCamera */,
 				99726B041B5B084B0038084C /* Main.storyboard */,
 				99726B071B5B084B0038084C /* Images.xcassets */,
@@ -159,6 +167,8 @@
 				99726B331B5BC6B90038084C /* AUUSliderMenuView.m */,
 				99726B351B5BCC970038084C /* AUUColorCategory.h */,
 				99726B361B5BCC970038084C /* AUUColorCategory.m */,
+				1C62C6D61B5E44B20040D63B /* AUUMenu.h */,
+				1C62C6D71B5E44B20040D63B /* AUUMenu.m */,
 				99726B311B5B667D0038084C /* AUUMacro.h */,
 			);
 			name = CustomCamera;
@@ -268,10 +278,12 @@
 				99726B2F1B5B61F70038084C /* AUUImageCategory.m in Sources */,
 				99726B341B5BC6B90038084C /* AUUSliderMenuView.m in Sources */,
 				99726B231B5B08CB0038084C /* AUUCameraManager.m in Sources */,
+				1C62C6DB1B5E57470040D63B /* PlayViewController.m in Sources */,
 				99726B031B5B084B0038084C /* ViewController.m in Sources */,
 				99726B371B5BCC970038084C /* AUUColorCategory.m in Sources */,
 				99726B001B5B084B0038084C /* AppDelegate.m in Sources */,
 				99726AFD1B5B084B0038084C /* main.m in Sources */,
+				1C62C6D81B5E44B20040D63B /* AUUMenu.m in Sources */,
 				99726B261B5B08E50038084C /* AUUCameraViewController.m in Sources */,
 				99726B2C1B5B09390038084C /* AUUFilterFactory.m in Sources */,
 			);
@@ -470,6 +482,7 @@
 				99726B1C1B5B084B0038084C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		99726B1D1B5B084B0038084C /* Build configuration list for PBXNativeTarget "CustomCameraWithFilterTests" */ = {
 			isa = XCConfigurationList;
@@ -478,6 +491,7 @@
 				99726B1F1B5B084B0038084C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

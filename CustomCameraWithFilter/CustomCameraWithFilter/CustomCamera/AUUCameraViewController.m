@@ -14,7 +14,7 @@
 #import "AUUSliderMenuView.h"
 #import "AUUFilterFactory.h"
 
-#define kNavigationContainerViewHeight 64.0
+#define kNavigationContainerViewHeight 44.0
 #define kMaxToolsContainerViewHeight 144.0
 #define kMinToolsContainerViewHeight 44.0
 
@@ -35,6 +35,7 @@ static CGFloat commonTipsLabelHeight = 20.0f;
 
 @property (assign, nonatomic) BOOL p_flashModeMenuViewable;
 @property (assign, nonatomic) BOOL p_cameraPositionMenuViewable;
+@property (assign, nonatomic) BOOL p_currentInPreview;
 
 @property (retain, nonatomic) AUUSliderMenuView *p_sliderMenu;
 
@@ -46,6 +47,7 @@ static CGFloat commonTipsLabelHeight = 20.0f;
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
+    self.p_currentInPreview = NO;
     self.p_tipsLabelHidden = YES;
     self.p_flashModeMenuViewable = NO;
     self.p_cameraPositionMenuViewable = NO;
@@ -108,11 +110,36 @@ static CGFloat commonTipsLabelHeight = 20.0f;
     {
         if (self.p_cameraPositionMenuViewable)
         {
-            [self cancelChangeCameraPositionMenuWithAnimation];
+            if (self.p_currentInPreview)
+            {
+                [self cancelChangeCameraPositionMenuWithNOAnimation];
+                
+                if (!self.p_tipsLabelHidden)
+                {
+                    [self clearTips];
+                }
+            }
+            else
+            {
+                [self cancelChangeCameraPositionMenuWithAnimation];
+            }
         }
+        
         if (self.p_flashModeMenuViewable)
         {
-            [self cancelchangeFlashModeMenuWithAnimation];
+            if (self.p_currentInPreview)
+            {
+                [self cancelchangeFlashModeMenuWithNOAnimation];
+                
+                if (!self.p_tipsLabelHidden)
+                {
+                    [self clearTips];
+                }
+            }
+            else
+            {
+                [self cancelchangeFlashModeMenuWithAnimation];
+            }
         }
     }
     else if (!self.p_tipsLabelHidden)
@@ -208,8 +235,6 @@ static CGFloat commonTipsLabelHeight = 20.0f;
     
     NSArray *tips = @[@"根据设备默认选择闪光灯", @"关闭闪光灯", @"打开闪光灯"];
     [self showTips:[NSString stringWithFormat:@"您选择了:%@", tips[button.tag]]];
-    
-//    [self clearTipsWithDelay:2.0f];
 }
 
 - (void)changeCaptureDevice
@@ -225,8 +250,6 @@ static CGFloat commonTipsLabelHeight = 20.0f;
     
     NSArray *tips = @[@"根据需求自动打开", @"后置摄像头", @"前置摄像头"];
     [self showTips:[NSString stringWithFormat:@"您选择了:%@", tips[button.tag]]];
-    
-//    [self clearTipsWithDelay:2.0f];
 }
 
 - (void)cancelPreview
@@ -318,24 +341,18 @@ static CGFloat commonTipsLabelHeight = 20.0f;
 
 - (UILabel *)tipsLabel
 {
-    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake( kScreenSize.width - 10, 0, kScreenSize.width -20, commonTipsLabelHeight)];
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake( 0, -20, kScreenSize.width, commonTipsLabelHeight)];
     label.textAlignment = NSTextAlignmentRight;
     label.textColor = [UIColor blueColor];
     label.font = [UIFont systemFontOfSize:12];
-    label.backgroundColor = [UIColor clearColor];
+    label.backgroundColor = kRGBA(1, 1, 1, 0.3);
     
     return label;
 }
 
 - (CGFloat)navigationItemYOrigin
 {
-    CGFloat reduce = (self.p_tipsLabelHidden ? 0 : commonTipsLabelHeight);
-    return ([self navigationContainerViewHeight] - commonButtonHeight - reduce) / 2.0 + reduce;
-}
-
-- (CGFloat)navigationContainerViewHeight
-{
-    return kNavigationContainerViewHeight - [self commonTipsLabelHeight];
+    return (kNavigationContainerViewHeight - commonButtonHeight) / 2.0;
 }
 
 - (CGFloat)commonTipsLabelHeight
@@ -345,6 +362,8 @@ static CGFloat commonTipsLabelHeight = 20.0f;
 
 - (void)previewImageWithAnimation
 {
+    self.p_currentInPreview = YES;
+    
     [UIView animateWithDuration:defaultAnimationDuration animations:^{
         self.p_navigationContainerView.X = -kScreenSize.width;
         self.p_toolsContainerView.X = -kScreenSize.width;
@@ -359,6 +378,8 @@ static CGFloat commonTipsLabelHeight = 20.0f;
 
 - (void)cancelpreviewImageWithAnimation
 {
+    self.p_currentInPreview = NO;
+    
     [UIView animateWithDuration:defaultAnimationDuration animations:^{
         self.p_navigationContainerView.X = 0;
         self.p_toolsContainerView.X = 0;
@@ -379,9 +400,7 @@ static CGFloat commonTipsLabelHeight = 20.0f;
             button.X = -button.W;
             button.alpha = 0;
         }
-        for (UIButton *button in @[self.cancelPreviewButton, self.saveToAlbumButton]) {
-            button.Y = [self navigationItemYOrigin];
-        }
+        
         for (UIButton *button in @[self.flashModeONButton, self.flashModeOFFButton, self.flashModeAutoButton]) {
             button.alpha = 1;
         }
@@ -401,13 +420,20 @@ static CGFloat commonTipsLabelHeight = 20.0f;
 
 - (void)cancelchangeFlashModeMenuWithAnimation
 {
-    [UIView animateWithDuration:defaultAnimationDuration animations:^{
+    [self cancelchangeFlashModeMenuWithAnimationWithDuration:defaultAnimationDuration];
+}
+
+- (void)cancelchangeFlashModeMenuWithNOAnimation
+{
+    [self cancelchangeFlashModeMenuWithAnimationWithDuration:0];
+}
+
+- (void)cancelchangeFlashModeMenuWithAnimationWithDuration:(NSTimeInterval)interval
+{
+    [UIView animateWithDuration:interval animations:^{
         for (UIButton *button in @[self.flashModeONButton, self.flashModeOFFButton, self.flashModeAutoButton]) {
             button.alpha = 0;
             button.X = kScreenSize.width;
-        }
-        for (UIButton *button in @[self.cancelPreviewButton, self.saveToAlbumButton]) {
-            button.Y = [self navigationItemYOrigin];
         }
         for (UIButton *button in @[self.backButton, self.flashControlButton, self.changeCameraButton]) {
             button.alpha = 1;
@@ -432,9 +458,7 @@ static CGFloat commonTipsLabelHeight = 20.0f;
             button.X = -button.W;
             button.alpha = 0;
         }
-        for (UIButton *button in @[self.cancelPreviewButton, self.saveToAlbumButton]) {
-            button.Y = [self navigationItemYOrigin];
-        }
+        
         for (UIButton *button in @[self.cameraPositionFrontButton, self.cameraPositionBackButton, self.cameraPositionAutoButton]) {
             button.alpha = 1;
         }
@@ -453,21 +477,29 @@ static CGFloat commonTipsLabelHeight = 20.0f;
 
 - (void)cancelChangeCameraPositionMenuWithAnimation
 {
-    [UIView animateWithDuration:defaultAnimationDuration animations:^{
+    [self cancelChangeCameraPositionMenuWithAnimationDuration:defaultAnimationDuration];
+}
+
+- (void)cancelChangeCameraPositionMenuWithNOAnimation
+{
+    [self cancelChangeCameraPositionMenuWithAnimationDuration:0];
+}
+
+- (void)cancelChangeCameraPositionMenuWithAnimationDuration:(NSTimeInterval)interval
+{
+    [UIView animateWithDuration:interval animations:^{
         for (UIButton *button in @[self.cameraPositionFrontButton, self.cameraPositionBackButton, self.cameraPositionAutoButton]) {
             button.alpha = 0;
             button.X = kScreenSize.width;
         }
-        for (UIButton *button in @[self.cancelPreviewButton, self.saveToAlbumButton]) {
-            button.Y = [self navigationItemYOrigin];
-        }
+        
         for (UIButton *button in @[self.backButton, self.flashControlButton, self.changeCameraButton]) {
             button.alpha = 1;
         }
         self.backButton.X = commonButtonMargin;
         self.flashControlButton.X = (kScreenSize.width - commonButtonWidth) / 2.0;
         self.changeCameraButton.X = kScreenSize.width - commonButtonWidth - commonButtonMargin;
-    
+        
         self.view.userInteractionEnabled = NO;
     }completion:^(BOOL finished) {
         self.view.userInteractionEnabled = YES;
@@ -479,8 +511,9 @@ static CGFloat commonTipsLabelHeight = 20.0f;
 
 - (void)sliderMenuFrameAdjust
 {
-    _p_sliderMenu.menuTable.Y = [self navigationContainerViewHeight];
-    _p_sliderMenu.menuTable.H = kScreenSize.height - [self navigationContainerViewHeight] - kMaxToolsContainerViewHeight;
+    CGFloat y = kNavigationContainerViewHeight + (self.p_tipsLabelHidden ? 0 : 20);
+    _p_sliderMenu.menuTable.Y = y;
+    _p_sliderMenu.menuTable.H = kScreenSize.height - y - kMaxToolsContainerViewHeight;
 }
 
 - (void)showTips:(NSString *)tips
@@ -512,18 +545,8 @@ static CGFloat commonTipsLabelHeight = 20.0f;
 - (void)showTipsWithAnimationCompletion:(void (^)(void))completion
 {
     [UIView animateWithDuration:defaultAnimationDuration animations:^{
-        self.p_navigationContainerView.H = [self navigationContainerViewHeight];
-        
-        for (UIButton *button in @[self.backButton, self.flashControlButton, self.flashModeONButton,
-                                   self.flashModeOFFButton, self.flashModeOFFButton, self.flashModeAutoButton,
-                                   self.changeCameraButton, self.cancelPreviewButton, self.saveToAlbumButton,
-                                   self.cameraPositionAutoButton,self.cameraPositionFrontButton,
-                                   self.cameraPositionBackButton]) {
-            
-            button.Y = [self navigationItemYOrigin];
-        }
-        
-        self.p_tipsLabel.X = kScreenSize.width - self.p_tipsLabel.X;
+        self.p_navigationContainerView.Y = (self.p_tipsLabelHidden ? 0 : commonTipsLabelHeight);
+        self.p_tipsLabel.Y = (self.p_tipsLabelHidden ? -commonTipsLabelHeight : 0);
     }completion:^(BOOL finished) {
         completion();
     }];
@@ -534,7 +557,6 @@ static CGFloat commonTipsLabelHeight = 20.0f;
     self.p_tipsLabelHidden = YES;
     
     [self showTipsWithAnimationCompletion:^{
-        
         self.p_tipsLabel.text = @"";
     }];
 }
@@ -547,7 +569,7 @@ static CGFloat commonTipsLabelHeight = 20.0f;
     {
         _p_navigationContainerView = [self blurImageviewWithFrame:CGRectMake(0, 0,
                                                                              kScreenSize.width * 2.0,
-                                                                             [self navigationContainerViewHeight])];
+                                                                             kNavigationContainerViewHeight)];
         
         [self.view addSubview:_p_navigationContainerView];
     }
