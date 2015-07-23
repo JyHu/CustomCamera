@@ -7,8 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1C62C6D81B5E44B20040D63B /* AUUMenu.m in Sources */ = {isa = PBXBuildFile; fileRef = 1C62C6D71B5E44B20040D63B /* AUUMenu.m */; };
-		1C62C6DB1B5E57470040D63B /* PlayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1C62C6DA1B5E57470040D63B /* PlayViewController.m */; };
+		1C8C746E1B60D72F00474972 /* AUUCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1C8C745B1B60D72F00474972 /* AUUCameraManager.m */; };
+		1C8C746F1B60D72F00474972 /* AUUColorCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 1C8C745E1B60D72F00474972 /* AUUColorCategory.m */; };
+		1C8C74701B60D72F00474972 /* AUUImageCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 1C8C74601B60D72F00474972 /* AUUImageCategory.m */; };
+		1C8C74711B60D72F00474972 /* AUUViewCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 1C8C74621B60D72F00474972 /* AUUViewCategory.m */; };
+		1C8C74721B60D72F00474972 /* AUUCameraViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1C8C74651B60D72F00474972 /* AUUCameraViewController.m */; };
+		1C8C74731B60D72F00474972 /* AUUFilterFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 1C8C74681B60D72F00474972 /* AUUFilterFactory.m */; };
+		1C8C74741B60D72F00474972 /* AUUMenu.m in Sources */ = {isa = PBXBuildFile; fileRef = 1C8C746B1B60D72F00474972 /* AUUMenu.m */; };
+		1C8C74751B60D72F00474972 /* AUUSliderMenuView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1C8C746D1B60D72F00474972 /* AUUSliderMenuView.m */; };
 		99726AFD1B5B084B0038084C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 99726AFC1B5B084B0038084C /* main.m */; };
 		99726B001B5B084B0038084C /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 99726AFF1B5B084B0038084C /* AppDelegate.m */; };
 		99726B031B5B084B0038084C /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 99726B021B5B084B0038084C /* ViewController.m */; };
@@ -16,13 +22,6 @@
 		99726B081B5B084B0038084C /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 99726B071B5B084B0038084C /* Images.xcassets */; };
 		99726B0B1B5B084B0038084C /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 99726B091B5B084B0038084C /* LaunchScreen.xib */; };
 		99726B171B5B084B0038084C /* CustomCameraWithFilterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 99726B161B5B084B0038084C /* CustomCameraWithFilterTests.m */; };
-		99726B231B5B08CB0038084C /* AUUCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 99726B221B5B08CB0038084C /* AUUCameraManager.m */; };
-		99726B261B5B08E50038084C /* AUUCameraViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 99726B251B5B08E50038084C /* AUUCameraViewController.m */; };
-		99726B291B5B09020038084C /* AUUViewCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 99726B281B5B09020038084C /* AUUViewCategory.m */; };
-		99726B2C1B5B09390038084C /* AUUFilterFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 99726B2B1B5B09390038084C /* AUUFilterFactory.m */; };
-		99726B2F1B5B61F70038084C /* AUUImageCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 99726B2E1B5B61F70038084C /* AUUImageCategory.m */; };
-		99726B341B5BC6B90038084C /* AUUSliderMenuView.m in Sources */ = {isa = PBXBuildFile; fileRef = 99726B331B5BC6B90038084C /* AUUSliderMenuView.m */; };
-		99726B371B5BCC970038084C /* AUUColorCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 99726B361B5BCC970038084C /* AUUColorCategory.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,10 +35,23 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		1C62C6D61B5E44B20040D63B /* AUUMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AUUMenu.h; path = CustomCamera/AUUMenu.h; sourceTree = "<group>"; };
-		1C62C6D71B5E44B20040D63B /* AUUMenu.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AUUMenu.m; path = CustomCamera/AUUMenu.m; sourceTree = "<group>"; };
-		1C62C6D91B5E57470040D63B /* PlayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayViewController.h; sourceTree = "<group>"; };
-		1C62C6DA1B5E57470040D63B /* PlayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlayViewController.m; sourceTree = "<group>"; };
+		1C8C74581B60D72F00474972 /* AUUMacro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AUUMacro.h; sourceTree = "<group>"; };
+		1C8C745A1B60D72F00474972 /* AUUCameraManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AUUCameraManager.h; sourceTree = "<group>"; };
+		1C8C745B1B60D72F00474972 /* AUUCameraManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AUUCameraManager.m; sourceTree = "<group>"; };
+		1C8C745D1B60D72F00474972 /* AUUColorCategory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AUUColorCategory.h; sourceTree = "<group>"; };
+		1C8C745E1B60D72F00474972 /* AUUColorCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AUUColorCategory.m; sourceTree = "<group>"; };
+		1C8C745F1B60D72F00474972 /* AUUImageCategory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AUUImageCategory.h; sourceTree = "<group>"; };
+		1C8C74601B60D72F00474972 /* AUUImageCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AUUImageCategory.m; sourceTree = "<group>"; };
+		1C8C74611B60D72F00474972 /* AUUViewCategory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AUUViewCategory.h; sourceTree = "<group>"; };
+		1C8C74621B60D72F00474972 /* AUUViewCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AUUViewCategory.m; sourceTree = "<group>"; };
+		1C8C74641B60D72F00474972 /* AUUCameraViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AUUCameraViewController.h; sourceTree = "<group>"; };
+		1C8C74651B60D72F00474972 /* AUUCameraViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AUUCameraViewController.m; sourceTree = "<group>"; };
+		1C8C74671B60D72F00474972 /* AUUFilterFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AUUFilterFactory.h; sourceTree = "<group>"; };
+		1C8C74681B60D72F00474972 /* AUUFilterFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AUUFilterFactory.m; sourceTree = "<group>"; };
+		1C8C746A1B60D72F00474972 /* AUUMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AUUMenu.h; sourceTree = "<group>"; };
+		1C8C746B1B60D72F00474972 /* AUUMenu.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AUUMenu.m; sourceTree = "<group>"; };
+		1C8C746C1B60D72F00474972 /* AUUSliderMenuView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AUUSliderMenuView.h; sourceTree = "<group>"; };
+		1C8C746D1B60D72F00474972 /* AUUSliderMenuView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AUUSliderMenuView.m; sourceTree = "<group>"; };
 		99726AF71B5B084B0038084C /* CustomCameraWithFilter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CustomCameraWithFilter.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		99726AFB1B5B084B0038084C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		99726AFC1B5B084B0038084C /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -53,21 +65,6 @@
 		99726B101B5B084B0038084C /* CustomCameraWithFilterTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CustomCameraWithFilterTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		99726B151B5B084B0038084C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		99726B161B5B084B0038084C /* CustomCameraWithFilterTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CustomCameraWithFilterTests.m; sourceTree = "<group>"; };
-		99726B211B5B08CB0038084C /* AUUCameraManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AUUCameraManager.h; path = CustomCamera/AUUCameraManager.h; sourceTree = "<group>"; };
-		99726B221B5B08CB0038084C /* AUUCameraManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AUUCameraManager.m; path = CustomCamera/AUUCameraManager.m; sourceTree = "<group>"; };
-		99726B241B5B08E50038084C /* AUUCameraViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AUUCameraViewController.h; path = CustomCamera/AUUCameraViewController.h; sourceTree = "<group>"; };
-		99726B251B5B08E50038084C /* AUUCameraViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AUUCameraViewController.m; path = CustomCamera/AUUCameraViewController.m; sourceTree = "<group>"; };
-		99726B271B5B09020038084C /* AUUViewCategory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AUUViewCategory.h; path = CustomCamera/AUUViewCategory.h; sourceTree = "<group>"; };
-		99726B281B5B09020038084C /* AUUViewCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AUUViewCategory.m; path = CustomCamera/AUUViewCategory.m; sourceTree = "<group>"; };
-		99726B2A1B5B09390038084C /* AUUFilterFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AUUFilterFactory.h; path = CustomCamera/AUUFilterFactory.h; sourceTree = "<group>"; };
-		99726B2B1B5B09390038084C /* AUUFilterFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AUUFilterFactory.m; path = CustomCamera/AUUFilterFactory.m; sourceTree = "<group>"; };
-		99726B2D1B5B61F70038084C /* AUUImageCategory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AUUImageCategory.h; path = CustomCamera/AUUImageCategory.h; sourceTree = "<group>"; };
-		99726B2E1B5B61F70038084C /* AUUImageCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AUUImageCategory.m; path = CustomCamera/AUUImageCategory.m; sourceTree = "<group>"; };
-		99726B311B5B667D0038084C /* AUUMacro.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AUUMacro.h; path = CustomCamera/AUUMacro.h; sourceTree = "<group>"; };
-		99726B321B5BC6B90038084C /* AUUSliderMenuView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AUUSliderMenuView.h; path = CustomCamera/AUUSliderMenuView.h; sourceTree = "<group>"; };
-		99726B331B5BC6B90038084C /* AUUSliderMenuView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AUUSliderMenuView.m; path = CustomCamera/AUUSliderMenuView.m; sourceTree = "<group>"; };
-		99726B351B5BCC970038084C /* AUUColorCategory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AUUColorCategory.h; path = CustomCamera/AUUColorCategory.h; sourceTree = "<group>"; };
-		99726B361B5BCC970038084C /* AUUColorCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AUUColorCategory.m; path = CustomCamera/AUUColorCategory.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,6 +85,70 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1C8C74571B60D72F00474972 /* CustomCamera */ = {
+			isa = PBXGroup;
+			children = (
+				1C8C74581B60D72F00474972 /* AUUMacro.h */,
+				1C8C74591B60D72F00474972 /* Camera */,
+				1C8C745C1B60D72F00474972 /* Categories */,
+				1C8C74631B60D72F00474972 /* Controller */,
+				1C8C74661B60D72F00474972 /* Filter */,
+				1C8C74691B60D72F00474972 /* Views */,
+			);
+			path = CustomCamera;
+			sourceTree = "<group>";
+		};
+		1C8C74591B60D72F00474972 /* Camera */ = {
+			isa = PBXGroup;
+			children = (
+				1C8C745A1B60D72F00474972 /* AUUCameraManager.h */,
+				1C8C745B1B60D72F00474972 /* AUUCameraManager.m */,
+			);
+			path = Camera;
+			sourceTree = "<group>";
+		};
+		1C8C745C1B60D72F00474972 /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				1C8C745D1B60D72F00474972 /* AUUColorCategory.h */,
+				1C8C745E1B60D72F00474972 /* AUUColorCategory.m */,
+				1C8C745F1B60D72F00474972 /* AUUImageCategory.h */,
+				1C8C74601B60D72F00474972 /* AUUImageCategory.m */,
+				1C8C74611B60D72F00474972 /* AUUViewCategory.h */,
+				1C8C74621B60D72F00474972 /* AUUViewCategory.m */,
+			);
+			path = Categories;
+			sourceTree = "<group>";
+		};
+		1C8C74631B60D72F00474972 /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				1C8C74641B60D72F00474972 /* AUUCameraViewController.h */,
+				1C8C74651B60D72F00474972 /* AUUCameraViewController.m */,
+			);
+			path = Controller;
+			sourceTree = "<group>";
+		};
+		1C8C74661B60D72F00474972 /* Filter */ = {
+			isa = PBXGroup;
+			children = (
+				1C8C74671B60D72F00474972 /* AUUFilterFactory.h */,
+				1C8C74681B60D72F00474972 /* AUUFilterFactory.m */,
+			);
+			path = Filter;
+			sourceTree = "<group>";
+		};
+		1C8C74691B60D72F00474972 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				1C8C746A1B60D72F00474972 /* AUUMenu.h */,
+				1C8C746B1B60D72F00474972 /* AUUMenu.m */,
+				1C8C746C1B60D72F00474972 /* AUUSliderMenuView.h */,
+				1C8C746D1B60D72F00474972 /* AUUSliderMenuView.m */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		99726AEE1B5B084A0038084C = {
 			isa = PBXGroup;
 			children = (
@@ -113,9 +174,7 @@
 				99726AFF1B5B084B0038084C /* AppDelegate.m */,
 				99726B011B5B084B0038084C /* ViewController.h */,
 				99726B021B5B084B0038084C /* ViewController.m */,
-				1C62C6D91B5E57470040D63B /* PlayViewController.h */,
-				1C62C6DA1B5E57470040D63B /* PlayViewController.m */,
-				99726B201B5B08520038084C /* CustomCamera */,
+				1C8C74571B60D72F00474972 /* CustomCamera */,
 				99726B041B5B084B0038084C /* Main.storyboard */,
 				99726B071B5B084B0038084C /* Images.xcassets */,
 				99726B091B5B084B0038084C /* LaunchScreen.xib */,
@@ -148,30 +207,6 @@
 				99726B151B5B084B0038084C /* Info.plist */,
 			);
 			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		99726B201B5B08520038084C /* CustomCamera */ = {
-			isa = PBXGroup;
-			children = (
-				99726B211B5B08CB0038084C /* AUUCameraManager.h */,
-				99726B221B5B08CB0038084C /* AUUCameraManager.m */,
-				99726B241B5B08E50038084C /* AUUCameraViewController.h */,
-				99726B251B5B08E50038084C /* AUUCameraViewController.m */,
-				99726B271B5B09020038084C /* AUUViewCategory.h */,
-				99726B281B5B09020038084C /* AUUViewCategory.m */,
-				99726B2A1B5B09390038084C /* AUUFilterFactory.h */,
-				99726B2B1B5B09390038084C /* AUUFilterFactory.m */,
-				99726B2D1B5B61F70038084C /* AUUImageCategory.h */,
-				99726B2E1B5B61F70038084C /* AUUImageCategory.m */,
-				99726B321B5BC6B90038084C /* AUUSliderMenuView.h */,
-				99726B331B5BC6B90038084C /* AUUSliderMenuView.m */,
-				99726B351B5BCC970038084C /* AUUColorCategory.h */,
-				99726B361B5BCC970038084C /* AUUColorCategory.m */,
-				1C62C6D61B5E44B20040D63B /* AUUMenu.h */,
-				1C62C6D71B5E44B20040D63B /* AUUMenu.m */,
-				99726B311B5B667D0038084C /* AUUMacro.h */,
-			);
-			name = CustomCamera;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -274,18 +309,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				99726B291B5B09020038084C /* AUUViewCategory.m in Sources */,
-				99726B2F1B5B61F70038084C /* AUUImageCategory.m in Sources */,
-				99726B341B5BC6B90038084C /* AUUSliderMenuView.m in Sources */,
-				99726B231B5B08CB0038084C /* AUUCameraManager.m in Sources */,
-				1C62C6DB1B5E57470040D63B /* PlayViewController.m in Sources */,
+				1C8C746F1B60D72F00474972 /* AUUColorCategory.m in Sources */,
+				1C8C74751B60D72F00474972 /* AUUSliderMenuView.m in Sources */,
+				1C8C746E1B60D72F00474972 /* AUUCameraManager.m in Sources */,
+				1C8C74741B60D72F00474972 /* AUUMenu.m in Sources */,
 				99726B031B5B084B0038084C /* ViewController.m in Sources */,
-				99726B371B5BCC970038084C /* AUUColorCategory.m in Sources */,
+				1C8C74731B60D72F00474972 /* AUUFilterFactory.m in Sources */,
+				1C8C74701B60D72F00474972 /* AUUImageCategory.m in Sources */,
 				99726B001B5B084B0038084C /* AppDelegate.m in Sources */,
+				1C8C74711B60D72F00474972 /* AUUViewCategory.m in Sources */,
 				99726AFD1B5B084B0038084C /* main.m in Sources */,
-				1C62C6D81B5E44B20040D63B /* AUUMenu.m in Sources */,
-				99726B261B5B08E50038084C /* AUUCameraViewController.m in Sources */,
-				99726B2C1B5B09390038084C /* AUUFilterFactory.m in Sources */,
+				1C8C74721B60D72F00474972 /* AUUCameraViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

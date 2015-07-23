@@ -8,7 +8,6 @@
 
 #import "ViewController.h"
 #import "AUUCameraViewController.h"
-#import "PlayViewController.h"
 
 @interface ViewController ()
 
@@ -23,10 +22,6 @@
 
 - (IBAction)custom:(id)sender {
     [self presentViewController:[[AUUCameraViewController alloc] init] animated:YES completion:nil];
-}
-
-- (IBAction)more:(id)sender {
-    [self presentViewController:[[PlayViewController alloc] init] animated:YES completion:nil];
 }
 
 - (void)didReceiveMemoryWarning {

@@ -16,10 +16,9 @@
 static NSString *adjustingFocusKey = @"adjustingFocus";
 
 /**
- *  @author JyHu, 15-07-21 14:07:32
+ *  @author JyHu, 15-07-23 16:07:35
  *
- *  使用CALayer可以做实时滤镜处理，但是当手机旋转的时候图片内容也会旋转变形
- *  如果用AVCaptureVideoPreviewLayer的话没法做实时滤镜处理
+ *  控制当前使用到得输出对象
  *
  *  @since  v 1.0
  */
@@ -32,7 +31,6 @@ AVCaptureMetadataOutputObjectsDelegate
 >
 
 @property (retain, nonatomic) AVCaptureSession *p_captureSession;
-@property (retain, nonatomic) UIImage *p_image;
 
 #ifdef kUseCaptureVideoLayer
 @property (assign, nonatomic) AVCaptureVideoPreviewLayer *p_captureVideoPreviewLayer;
@@ -47,10 +45,10 @@ AVCaptureMetadataOutputObjectsDelegate
 
 @property (retain, nonatomic) CIContext *p_context;
 @property (retain, nonatomic) CIImage *p_ciImage;
-@property (retain, nonatomic) AVMetadataFaceObject *p_faceObject;
 @property (assign, nonatomic) CMVideoDimensions p_videoDimensions;
 @property (assign, nonatomic) BOOL p_wantsTakePictureWhtnFocusedOK;
 @property (retain, nonatomic) CIFilter *p_filter;
+@property (retain, nonatomic) NSArray *p_capturedFaceObjectsArr;
 
 
 
@@ -61,9 +59,9 @@ AVCaptureMetadataOutputObjectsDelegate
 @synthesize delgate = _delgate;
 @synthesize filter = _filter;
 @synthesize autoWriteToAlbum = _autoWriteToAlbum;
+@synthesize needCaptureFaceObjectMetadata = _needCaptureFaceObjectMetadata;
 
 @synthesize p_captureSession = _p_captureSession;
-@synthesize p_image = _p_image;
 
 #ifdef kUseCaptureVideoLayer
 @synthesize p_captureVideoPreviewLayer = _p_captureVideoPreviewLayer;
@@ -77,11 +75,22 @@ AVCaptureMetadataOutputObjectsDelegate
 @synthesize p_captureDevicePosition = _p_captureDevicePosition;
 @synthesize p_context = _p_context;
 @synthesize p_ciImage = _p_ciImage;
-@synthesize p_faceObject = _p_faceObject;
 @synthesize p_videoDimensions = _p_videoDimensions;
 @synthesize p_wantsTakePictureWhtnFocusedOK = _p_wantsTakePictureWhtnFocusedOK;
 @synthesize p_filter = _p_filter;
+@synthesize p_capturedFaceObjectsArr = _p_capturedFaceObjectsArr;
 
++ (AUUCameraManager *)defaultManager
+{
+    static AUUCameraManager *manager;
+    
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        manager = [[AUUCameraManager alloc] init];
+    });
+    
+    return manager;
+}
 
 - (id)init
 {
@@ -89,6 +98,7 @@ AVCaptureMetadataOutputObjectsDelegate
     
     if (self)
     {
+        self.needCaptureFaceObjectMetadata = YES;
         self.autoWriteToAlbum = NO;
         self.p_deviceFlashMode = AUUDeviceFlashModeAuto;
         self.p_captureDevicePosition = AUUCaptureDevicePositionBack;
@@ -114,14 +124,15 @@ AVCaptureMetadataOutputObjectsDelegate
     self.p_captureSession.sessionPreset = AVCaptureSessionPresetHigh;
     
     self.p_captureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+    
     [self.p_captureDevice addObserver:self
                            forKeyPath:adjustingFocusKey
                               options:NSKeyValueObservingOptionNew
                               context:nil];
     
     NSError *error;
-    AVCaptureDeviceInput *t_captureInput = [AVCaptureDeviceInput deviceInputWithDevice:self.p_captureDevice
-                                                                                 error:&error];
+    
+    AVCaptureDeviceInput *t_captureInput = [AVCaptureDeviceInput deviceInputWithDevice:self.p_captureDevice error:&error];
     if (error)
     {
         NSLog(@"%@", [error localizedDescription]);
@@ -147,9 +158,12 @@ AVCaptureMetadataOutputObjectsDelegate
     if ([self.p_captureSession canAddOutput:captureMetadataOutput])
     {
         [self.p_captureSession addOutput:captureMetadataOutput];
+        captureMetadataOutput.metadataObjectTypes = @[AVMetadataObjectTypeFace];
     }
     
     [self.p_captureSession commitConfiguration];
+    
+    self.needCaptureFaceObjectMetadata = YES;
 }
 
 #pragma mark - AVCaptureVideoDataOutputSampleBufferDelegate
@@ -173,15 +187,25 @@ AVCaptureMetadataOutputObjectsDelegate
             outputImage = self.p_filter.outputImage;
         }
         
-        if (self.p_faceObject != nil)
+        if (self.p_capturedFaceObjectsArr != nil)
         {
-            outputImage = [self makeFaceWithCIImage:outputImage faceObject:_p_faceObject];
+            if (self.delgate && [self.delgate respondsToSelector:@selector(didCustomCameraManager:capturedFaceObjects:withCIImage:)])
+            {
+                outputImage = [self.delgate didCustomCameraManager:self capturedFaceObjects:self.p_capturedFaceObjectsArr withCIImage:outputImage];
+            }
         }
         
-        UIDeviceOrientation orientation = [UIDevice currentDevice].orientation;
+        if (self.delgate && [self.delgate respondsToSelector:@selector(reDisposeCapturedFrme:forCameraManager:)])
+        {
+            outputImage = [self.delgate reDisposeCapturedFrme:outputImage forCameraManager:self];
+        }
         
         CGFloat angle;
         
+#ifdef kUseCaptureVideoLayer
+        
+        UIDeviceOrientation orientation = [UIDevice currentDevice].orientation;
+
         if (orientation == UIDeviceOrientationPortrait)
         {
             angle = -M_PI_2;
@@ -198,6 +222,12 @@ AVCaptureMetadataOutputObjectsDelegate
         {
             angle = 0;
         }
+        
+#else
+      
+        angle = -M_PI_2;
+        
+#endif
         
         outputImage = [outputImage imageByApplyingTransform:CGAffineTransformMakeRotation(angle)];
         
@@ -224,51 +254,11 @@ AVCaptureMetadataOutputObjectsDelegate
 {
     if (metadataObjects.count > 0)
     {
-        self.p_faceObject = [metadataObjects firstObject];
+        self.p_capturedFaceObjectsArr = metadataObjects;
     }
 }
 
 #pragma mark - Help methods
-
-- (CIImage *)makeFaceWithCIImage:(CIImage *)inputImage faceObject:(AVMetadataFaceObject *)faceObject
-{
-    CIFilter *tFilter = [CIFilter filterWithName:@"CIPixellate"];
-    [tFilter setValue:inputImage forKey:kCIInputImageKey];
-    
-    [tFilter setValue:@(MAX(inputImage.extent.size.width, inputImage.extent.size.height) / 60.0) forKey:kCIInputScaleKey];
-    CIImage *fullPixellatedImage = [tFilter outputImage];
-    
-    CIImage *maskImage;
-    CGRect faceBounds = faceObject.bounds;
-    
-    CGFloat centerX = inputImage.extent.size.width * (faceBounds.origin.x + faceBounds.size.width / 2.0);
-    CGFloat centerY = inputImage.extent.size.height * (1 - faceBounds.origin.y - faceBounds.size.height /2.0);
-    CGFloat radius = faceBounds.size.width * inputImage.extent.size.width / 2.0;
-    
-    CIFilter *radialGradient = [CIFilter filterWithName:@"CIRadialGradient"
-                                    withInputParameters:@{@"inputRadius0" : @(radius),
-                                                          @"inputRadius1" : @(radius + 1),
-                                                          @"inputColor0" : [CIColor colorWithRed:0 green:1 blue:0 alpha:1],
-                                                          @"inputColor1" : [CIColor colorWithRed:0 green:0 blue:0 alpha:0],
-                                                          kCIInputCenterKey : [CIVector vectorWithX:centerX Y:centerY]}];
-    CIImage *radiaGradientOutputImage = [radialGradient.outputImage imageByCroppingToRect:inputImage.extent];
-    if (maskImage == nil)
-    {
-        maskImage = radiaGradientOutputImage;
-    }
-    else
-    {
-        maskImage = [CIFilter filterWithName:@"CISourceOverCompositing"
-                         withInputParameters:@{kCIInputImageKey : radiaGradientOutputImage,
-                                               kCIInputBackgroundImageKey : maskImage}].outputImage;
-    }
-    CIFilter *blendFilter = [CIFilter filterWithName:@"CIBlendWithMask"];
-    [blendFilter setValue:fullPixellatedImage forKey:kCIInputImageKey];
-    [blendFilter setValue:inputImage forKey:kCIInputBackgroundImageKey];
-    [blendFilter setValue:maskImage forKey:kCIInputMaskImageKey];
-    
-    return blendFilter.outputImage;
-}
 
 - (void)showMessage:(NSString *)msg
 {
@@ -323,6 +313,7 @@ AVCaptureMetadataOutputObjectsDelegate
                     [_delgate didCustomCameraManager:self
                             finishedCaptureWithImage:[UIImage imageWithCGImage:cgImage]
                                             assetURL:assetURL];
+                    [self startRunning];
                 }
             }];
         }
@@ -363,7 +354,8 @@ AVCaptureMetadataOutputObjectsDelegate
     {
         EAGLContext *eaglContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
         _p_context = [CIContext contextWithEAGLContext:eaglContext
-                                               options:@{kCIContextWorkingColorSpace : [NSNull null]}];
+                                               options:@{kCIContextWorkingColorSpace : [NSNull null],
+                                                         kCIContextUseSoftwareRenderer : @(YES)}];
     }
     
     return _p_context;
@@ -374,6 +366,10 @@ AVCaptureMetadataOutputObjectsDelegate
     if (filter)
     {
         self.p_filter = [filter copy];
+    }
+    else
+    {
+        self.p_filter = nil;
     }
 }
 
@@ -400,6 +396,53 @@ AVCaptureMetadataOutputObjectsDelegate
 - (AUUDeviceFlashMode)deviceFlashMode
 {
     return self.p_deviceFlashMode;
+}
+
+- (void)setNeedCaptureFaceObjectMetadata:(BOOL)needCaptureFaceObjectMetadata
+{
+    _needCaptureFaceObjectMetadata = needCaptureFaceObjectMetadata;
+    if (self.p_captureSession)
+    {
+        [self.p_captureSession beginConfiguration];
+        
+        if (needCaptureFaceObjectMetadata)
+        {
+            AVCaptureMetadataOutput *captureMetadataOutput = [[AVCaptureMetadataOutput alloc] init];
+            [captureMetadataOutput setMetadataObjectsDelegate:self queue:dispatch_get_main_queue()];
+            if ([self.p_captureSession canAddOutput:captureMetadataOutput])
+            {
+                [self.p_captureSession addOutput:captureMetadataOutput];
+                captureMetadataOutput.metadataObjectTypes = @[AVMetadataObjectTypeFace];
+            }
+        }
+        else
+        {
+            for (AVCaptureOutput *output in self.p_captureSession.outputs)
+            {
+                if ([output isKindOfClass:[AVCaptureMetadataOutput class]])
+                {
+                    AVCaptureMetadataOutput *metadataOutput = (AVCaptureMetadataOutput *)output;
+                    
+                    for (NSString *availableMetadataObjectType in metadataOutput.metadataObjectTypes)
+                    {
+                        if ([availableMetadataObjectType isEqualToString:AVMetadataObjectTypeFace])
+                        {
+                            [self.p_captureSession removeOutput:metadataOutput];
+                            
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        
+        [self.p_captureSession commitConfiguration];
+    }
+}
+
+- (BOOL)needCaptureFaceObjectMetadata
+{
+    return _needCaptureFaceObjectMetadata;
 }
 
 #pragma mark - Handle methods
@@ -601,10 +644,9 @@ AVCaptureMetadataOutputObjectsDelegate
     self.p_layer = nil;
 #endif
     
-    self.p_image = nil;
     self.p_ciImage = nil;
     self.p_context = nil;
-    self.p_faceObject = nil;
+    self.p_capturedFaceObjectsArr = nil;
     self.p_captureDevice = nil;
     self.p_filter = nil;
     self.filter = nil;

@@ -14,6 +14,8 @@
 #import "AUUSliderMenuView.h"
 #import "AUUFilterFactory.h"
 
+#define kUseSingletonCameraManager 1
+
 #define kNavigationContainerViewHeight 44.0
 #define kMaxToolsContainerViewHeight 144.0
 #define kMinToolsContainerViewHeight 44.0
@@ -26,7 +28,6 @@ static CGFloat commonTipsLabelHeight = 20.0f;
 @interface AUUCameraViewController ()<AUUCameraManagerDelegate>
 
 @property (retain, nonatomic) AUUCameraManager *p_cameraManager;
-
 @property (retain, nonatomic) UIImageView *p_navigationContainerView;
 @property (retain, nonatomic) UIImageView *p_toolsContainerView;
 @property (retain, nonatomic) UILabel *p_tipsLabel;
@@ -85,9 +86,16 @@ static CGFloat commonTipsLabelHeight = 20.0f;
 
 - (void)viewDidAppear:(BOOL)animated
 {
-    _p_cameraManager = [[AUUCameraManager alloc] init];
-    _p_cameraManager.delgate = self;
-    [_p_cameraManager startRunning];
+    
+#ifdef kUseSingletonCameraManager
+    self.p_cameraManager = [AUUCameraManager defaultManager];
+#else
+    self.p_cameraManager = [[AUUCameraManager alloc] init];
+#endif
+    
+    self.p_cameraManager = [[AUUCameraManager alloc] init];
+    self.p_cameraManager.delgate = self;
+    [self.p_cameraManager startRunning];
     
     self.p_preView = [[UIView alloc] initWithFrame:self.view.bounds];
     self.p_preView.backgroundColor = [UIColor clearColor];
@@ -101,7 +109,7 @@ static CGFloat commonTipsLabelHeight = 20.0f;
         [self setupUI];
     }];
     
-    [_p_cameraManager changePreviewOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+    [self.p_cameraManager changePreviewOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
 }
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
@@ -146,6 +154,8 @@ static CGFloat commonTipsLabelHeight = 20.0f;
     {
         [self clearTips];
     }
+    
+    self.p_cameraManager.needCaptureFaceObjectMetadata = !self.p_cameraManager.needCaptureFaceObjectMetadata;
 }
 
 #pragma mark - UI methods
@@ -195,6 +205,7 @@ static CGFloat commonTipsLabelHeight = 20.0f;
         }
         else
         {
+            self.p_cameraManager.filter = nil;
             [self showTips:@"您选择了取消滤镜。"];
         }
     }];
@@ -308,7 +319,7 @@ static CGFloat commonTipsLabelHeight = 20.0f;
     }
 }
 
-- (void)didCustomCameraManager:(AUUCameraManager *)cameraManager finishedAdjustingFocus:(BOOL)finish
+- (void)didCustomCameraManager:(AUUCameraManager *)cameraManager finishedAdjustingFocus:(BOOL)adjusting
 {
     
 }

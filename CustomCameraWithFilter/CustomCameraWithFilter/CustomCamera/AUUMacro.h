@@ -19,6 +19,13 @@ typedef NS_ENUM(NSUInteger, AUUSelection) {
     AUUSelectionCancel = -1
 };
 
+/**
+ *  @author JyHu, 15-07-23 16:07:13
+ *
+ *  所有动画的默认执行时间
+ *
+ *  @since  v 1.0
+ */
 static NSTimeInterval defaultAnimationDuration = 0.5f;
 
 
