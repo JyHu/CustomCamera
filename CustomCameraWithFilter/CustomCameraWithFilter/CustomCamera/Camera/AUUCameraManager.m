@@ -49,6 +49,7 @@ AVCaptureMetadataOutputObjectsDelegate
 @property (assign, nonatomic) BOOL p_wantsTakePictureWhtnFocusedOK;
 @property (retain, nonatomic) CIFilter *p_filter;
 @property (retain, nonatomic) NSArray *p_capturedFaceObjectsArr;
+@property (assign, nonatomic) UIDeviceOrientation p_deviceOrientationWhenAppear;
 
 
 
@@ -79,6 +80,7 @@ AVCaptureMetadataOutputObjectsDelegate
 @synthesize p_wantsTakePictureWhtnFocusedOK = _p_wantsTakePictureWhtnFocusedOK;
 @synthesize p_filter = _p_filter;
 @synthesize p_capturedFaceObjectsArr = _p_capturedFaceObjectsArr;
+@synthesize p_deviceOrientationWhenAppear = _p_deviceOrientationWhenAppear;
 
 + (AUUCameraManager *)defaultManager
 {
@@ -162,6 +164,8 @@ AVCaptureMetadataOutputObjectsDelegate
         captureMetadataOutput.metadataObjectTypes = @[AVMetadataObjectTypeFace];
     }
     
+    self.p_deviceOrientationWhenAppear = [[UIDevice currentDevice] orientation];
+    
     [self.p_captureSession commitConfiguration];
     
     self.needCaptureFaceObjectMetadata = YES;
@@ -203,9 +207,13 @@ AVCaptureMetadataOutputObjectsDelegate
         
         CGFloat angle;
         
-#ifdef kUseCaptureVideoLayer
+        UIDeviceOrientation orientation;
         
-        UIDeviceOrientation orientation = [UIDevice currentDevice].orientation;
+#ifdef kUseCaptureVideoLayer
+        orientation = [UIDevice currentDevice].orientation;
+#else
+        orientation = self.p_deviceOrientationWhenAppear;
+#endif
 
         if (orientation == UIDeviceOrientationPortrait)
         {
@@ -223,12 +231,6 @@ AVCaptureMetadataOutputObjectsDelegate
         {
             angle = 0;
         }
-        
-#else
-      
-        angle = -M_PI_2;
-        
-#endif
         
         outputImage = [outputImage imageByApplyingTransform:CGAffineTransformMakeRotation(angle)];
         

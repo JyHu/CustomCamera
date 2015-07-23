@@ -22,6 +22,10 @@
 		99726B081B5B084B0038084C /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 99726B071B5B084B0038084C /* Images.xcassets */; };
 		99726B0B1B5B084B0038084C /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 99726B091B5B084B0038084C /* LaunchScreen.xib */; };
 		99726B171B5B084B0038084C /* CustomCameraWithFilterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 99726B161B5B084B0038084C /* CustomCameraWithFilterTests.m */; };
+		999A77C71B6139D00038728A /* AUUAlbumViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 999A77C61B6139D00038728A /* AUUAlbumViewController.m */; };
+		999A77CA1B613A070038728A /* AUUPictureEditViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 999A77C91B613A070038728A /* AUUPictureEditViewController.m */; };
+		999A77D01B6141630038728A /* AUUAlbumCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 999A77CF1B6141630038728A /* AUUAlbumCollectionViewCell.m */; };
+		999A77D41B6143840038728A /* AUUCollectionViewLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 999A77D31B6143840038728A /* AUUCollectionViewLayout.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,6 +69,14 @@
 		99726B101B5B084B0038084C /* CustomCameraWithFilterTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CustomCameraWithFilterTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		99726B151B5B084B0038084C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		99726B161B5B084B0038084C /* CustomCameraWithFilterTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CustomCameraWithFilterTests.m; sourceTree = "<group>"; };
+		999A77C51B6139D00038728A /* AUUAlbumViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AUUAlbumViewController.h; sourceTree = "<group>"; };
+		999A77C61B6139D00038728A /* AUUAlbumViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AUUAlbumViewController.m; sourceTree = "<group>"; };
+		999A77C81B613A070038728A /* AUUPictureEditViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AUUPictureEditViewController.h; sourceTree = "<group>"; };
+		999A77C91B613A070038728A /* AUUPictureEditViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AUUPictureEditViewController.m; sourceTree = "<group>"; };
+		999A77CE1B6141630038728A /* AUUAlbumCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AUUAlbumCollectionViewCell.h; sourceTree = "<group>"; };
+		999A77CF1B6141630038728A /* AUUAlbumCollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AUUAlbumCollectionViewCell.m; sourceTree = "<group>"; };
+		999A77D21B6143840038728A /* AUUCollectionViewLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AUUCollectionViewLayout.h; path = Libiary/AUUCollectionViewLayout.h; sourceTree = "<group>"; };
+		999A77D31B6143840038728A /* AUUCollectionViewLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AUUCollectionViewLayout.m; path = Libiary/AUUCollectionViewLayout.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -89,6 +101,7 @@
 			isa = PBXGroup;
 			children = (
 				1C8C74581B60D72F00474972 /* AUUMacro.h */,
+				999A77D11B6143500038728A /* Library */,
 				1C8C74591B60D72F00474972 /* Camera */,
 				1C8C745C1B60D72F00474972 /* Categories */,
 				1C8C74631B60D72F00474972 /* Controller */,
@@ -125,6 +138,10 @@
 			children = (
 				1C8C74641B60D72F00474972 /* AUUCameraViewController.h */,
 				1C8C74651B60D72F00474972 /* AUUCameraViewController.m */,
+				999A77C51B6139D00038728A /* AUUAlbumViewController.h */,
+				999A77C61B6139D00038728A /* AUUAlbumViewController.m */,
+				999A77C81B613A070038728A /* AUUPictureEditViewController.h */,
+				999A77C91B613A070038728A /* AUUPictureEditViewController.m */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -145,6 +162,8 @@
 				1C8C746B1B60D72F00474972 /* AUUMenu.m */,
 				1C8C746C1B60D72F00474972 /* AUUSliderMenuView.h */,
 				1C8C746D1B60D72F00474972 /* AUUSliderMenuView.m */,
+				999A77CE1B6141630038728A /* AUUAlbumCollectionViewCell.h */,
+				999A77CF1B6141630038728A /* AUUAlbumCollectionViewCell.m */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -207,6 +226,15 @@
 				99726B151B5B084B0038084C /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		999A77D11B6143500038728A /* Library */ = {
+			isa = PBXGroup;
+			children = (
+				999A77D21B6143840038728A /* AUUCollectionViewLayout.h */,
+				999A77D31B6143840038728A /* AUUCollectionViewLayout.m */,
+			);
+			name = Library;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -311,14 +339,18 @@
 			files = (
 				1C8C746F1B60D72F00474972 /* AUUColorCategory.m in Sources */,
 				1C8C74751B60D72F00474972 /* AUUSliderMenuView.m in Sources */,
+				999A77C71B6139D00038728A /* AUUAlbumViewController.m in Sources */,
 				1C8C746E1B60D72F00474972 /* AUUCameraManager.m in Sources */,
 				1C8C74741B60D72F00474972 /* AUUMenu.m in Sources */,
 				99726B031B5B084B0038084C /* ViewController.m in Sources */,
 				1C8C74731B60D72F00474972 /* AUUFilterFactory.m in Sources */,
 				1C8C74701B60D72F00474972 /* AUUImageCategory.m in Sources */,
+				999A77D01B6141630038728A /* AUUAlbumCollectionViewCell.m in Sources */,
 				99726B001B5B084B0038084C /* AppDelegate.m in Sources */,
 				1C8C74711B60D72F00474972 /* AUUViewCategory.m in Sources */,
 				99726AFD1B5B084B0038084C /* main.m in Sources */,
+				999A77D41B6143840038728A /* AUUCollectionViewLayout.m in Sources */,
+				999A77CA1B613A070038728A /* AUUPictureEditViewController.m in Sources */,
 				1C8C74721B60D72F00474972 /* AUUCameraViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -40,6 +40,8 @@ typedef NS_ENUM(NSUInteger, AUUDeviceFlashMode) {
  */
 - (void)didCustomCameraManager:(AUUCameraManager *)cameraManager finishedCaptureWithImage:(UIImage *)image assetURL:(NSURL *)url;
 
+@optional
+
 /**
  *  @author JyHu, 15-07-23 16:07:57
  *
@@ -51,8 +53,6 @@ typedef NS_ENUM(NSUInteger, AUUDeviceFlashMode) {
  *  @since  v 1.0
  */
 - (void)didCustomCameraManager:(AUUCameraManager *)cameraManager finishedAdjustingFocus:(BOOL)adjusting;
-
-@optional
 
 /**
  *  @author JyHu, 15-07-23 17:07:12

@@ -13,6 +13,8 @@
 #import "AUUViewCategory.h"
 #import "AUUSliderMenuView.h"
 #import "AUUFilterFactory.h"
+#import "AUUAlbumViewController.h"
+#import "AUUPictureEditViewController.h"
 
 #define kUseSingletonCameraManager 1
 
@@ -62,6 +64,17 @@ static CGFloat commonTipsLabelHeight = 20.0f;
         [self prefersStatusBarHidden];
         [self performSelector:@selector(setNeedsStatusBarAppearanceUpdate)];
     }
+    
+//    if ([[UIDevice currentDevice] respondsToSelector:@selector(setOrientation:)])
+//    {
+//        SEL selector = NSSelectorFromString(@"setOrientation:");
+//        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[UIDevice instanceMethodSignatureForSelector:selector]];
+//        [invocation setSelector:selector];
+//        [invocation setTarget:[UIDevice currentDevice]];
+//        int val = UIInterfaceOrientationPortrait;
+//        [invocation setArgument:&val atIndex:2];
+//        [invocation invoke];
+//    }
 }
 
 - (BOOL)prefersStatusBarHidden
@@ -86,30 +99,34 @@ static CGFloat commonTipsLabelHeight = 20.0f;
 
 - (void)viewDidAppear:(BOOL)animated
 {
-    
+    if (self.p_cameraManager)
+    {
+        [self.p_cameraManager startRunning];
+    }
+    else
+    {
 #ifdef kUseSingletonCameraManager
-    self.p_cameraManager = [AUUCameraManager defaultManager];
+        self.p_cameraManager = [AUUCameraManager defaultManager];
 #else
-    self.p_cameraManager = [[AUUCameraManager alloc] init];
+        self.p_cameraManager = [[AUUCameraManager alloc] init];
 #endif
-    
-    self.p_cameraManager = [[AUUCameraManager alloc] init];
-    self.p_cameraManager.delgate = self;
-    [self.p_cameraManager startRunning];
-    
-    self.p_preView = [[UIView alloc] initWithFrame:self.view.bounds];
-    self.p_preView.backgroundColor = [UIColor clearColor];
-    self.p_preView.alpha = 0;
-    [self.p_cameraManager embedPreviewInView:self.p_preView];
-    [self.view addSubview:self.p_preView];
-    
-    [UIView animateWithDuration:defaultAnimationDuration animations:^{
-        self.p_preView.alpha = 1;
-    }completion:^(BOOL finished) {
-        [self setupUI];
-    }];
-    
-    [self.p_cameraManager changePreviewOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+        
+        self.p_cameraManager = [[AUUCameraManager alloc] init];
+        self.p_cameraManager.delgate = self;
+        [self.p_cameraManager startRunning];
+        
+        self.p_preView = [[UIView alloc] initWithFrame:self.view.bounds];
+        self.p_preView.backgroundColor = [UIColor clearColor];
+        self.p_preView.alpha = 0;
+        [self.p_cameraManager embedPreviewInView:self.p_preView];
+        [self.view addSubview:self.p_preView];
+        
+        [UIView animateWithDuration:defaultAnimationDuration animations:^{
+            self.p_preView.alpha = 1;
+        }completion:^(BOOL finished) {
+            [self setupUI];
+        }];
+    }
 }
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
@@ -294,7 +311,14 @@ static CGFloat commonTipsLabelHeight = 20.0f;
 
 - (void)turnToAlbum
 {
+    [self.p_cameraManager stopRunning];
     
+    AUUAlbumViewController *albumVC = [[AUUAlbumViewController alloc] init];
+    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:albumVC];
+    
+    [self presentViewController:nav animated:YES completion:^{
+        
+    }];
 }
 
 - (void)takePicture
@@ -315,7 +339,9 @@ static CGFloat commonTipsLabelHeight = 20.0f;
 
 - (void)turnToEditViewController
 {
-    
+    [self presentViewController:[[AUUPictureEditViewController alloc] init] animated:YES completion:^{
+        
+    }];
 }
 
 #pragma mark - AUUCameraManagerDelegate
