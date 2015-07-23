@@ -124,7 +124,7 @@ AVCaptureMetadataOutputObjectsDelegate
     self.p_captureSession.sessionPreset = AVCaptureSessionPresetHigh;
     
     self.p_captureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-    
+        
     [self.p_captureDevice addObserver:self
                            forKeyPath:adjustingFocusKey
                               options:NSKeyValueObservingOptionNew
@@ -133,6 +133,7 @@ AVCaptureMetadataOutputObjectsDelegate
     NSError *error;
     
     AVCaptureDeviceInput *t_captureInput = [AVCaptureDeviceInput deviceInputWithDevice:self.p_captureDevice error:&error];
+    
     if (error)
     {
         NSLog(@"%@", [error localizedDescription]);
@@ -618,6 +619,21 @@ AVCaptureMetadataOutputObjectsDelegate
         
         completion(assetURL, error);
     }];
+}
+
+- (void)focusAtPoint:(CGPoint)point
+{
+    if ([self.p_captureDevice isFocusPointOfInterestSupported] && [self.p_captureDevice isFocusModeSupported:AVCaptureFocusModeAutoFocus])
+    {
+        NSError *error ;
+        
+        if ([self.p_captureDevice lockForConfiguration:&error])
+        {
+            [self.p_captureDevice setFocusPointOfInterest:point];
+            [self.p_captureDevice setFocusMode:AVCaptureFocusModeAutoFocus];
+            [self.p_captureDevice unlockForConfiguration];
+        }
+    }
 }
 
 #pragma mark - Memory

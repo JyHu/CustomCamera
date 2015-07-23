@@ -262,6 +262,17 @@ typedef NS_ENUM(NSUInteger, AUUDeviceFlashMode) {
  */
 @property (assign, nonatomic) BOOL needCaptureFaceObjectMetadata;
 
+/**
+ *  @author JyHu, 15-07-23 18:07:49
+ *
+ *  聚焦点设置
+ *
+ *  @param point 聚焦的中心位置，x、y 都是 0~1
+ *
+ *  @since  v 1.0
+ */
+- (void)focusAtPoint:(CGPoint)point;
+
 @end
 
 

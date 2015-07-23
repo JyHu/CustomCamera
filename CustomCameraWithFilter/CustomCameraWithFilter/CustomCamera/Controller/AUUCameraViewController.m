@@ -155,7 +155,16 @@ static CGFloat commonTipsLabelHeight = 20.0f;
         [self clearTips];
     }
     
-    self.p_cameraManager.needCaptureFaceObjectMetadata = !self.p_cameraManager.needCaptureFaceObjectMetadata;
+    if (self.p_cameraManager)
+    {
+        UITouch *touch = touches.anyObject;
+        
+        CGPoint touchPoint = [touch locationInView:self.p_preView];
+        
+        CGPoint pt = CGPointMake(touchPoint.x / self.p_preView.W, touchPoint.y / self.p_preView.H);
+        
+        [self.p_cameraManager focusAtPoint:pt];
+    }
 }
 
 #pragma mark - UI methods
