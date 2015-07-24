@@ -11,10 +11,13 @@
 #import "AUUMacro.h"
 #import "AUUAlbumCollectionViewCell.h"
 #import "AUUCollectionViewLayout.h"
+#import <AssetsLibrary/AssetsLibrary.h>
 
 @interface AUUAlbumViewController ()<UICollectionViewDelegate, UICollectionViewDataSource, AUUCollectionViewLayoutDelegate>
 
 @property (retain, nonatomic) UICollectionView *p_albumCollectionView;
+
+@property (retain, nonatomic) NSMutableArray *assetsArr;
 
 @end
 
@@ -26,6 +29,8 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     self.view.backgroundColor = [UIColor whiteColor];
+    
+    self.assetsArr = [[NSMutableArray alloc] init];
     
     AUUCollectionViewLayout *mlayout = [[AUUCollectionViewLayout alloc] init];
     mlayout.numberOfRows = 3;
@@ -41,6 +46,73 @@
     [self.view addSubview:self.p_albumCollectionView];
     
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Back" style:UIBarButtonItemStyleDone target:self action:@selector(back)];
+    
+//    [self getAllmage];
+}
+
+- (void)getAllmage
+{
+    __weak AUUAlbumViewController * weakself = self;
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        
+        ALAssetsLibraryGroupsEnumerationResultsBlock listGroupBlock = ^(ALAssetsGroup *group, BOOL *stop){
+            if (group != nil)
+            {
+                [group enumerateAssetsUsingBlock:^(ALAsset *result, NSUInteger index, BOOL *stop) {
+                    if ([result thumbnail] != nil)
+                    {
+                        if ([[result valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypePhoto])
+                        {
+                            NSDate *date= [result valueForProperty:ALAssetPropertyDate];
+                            //                        UIImage *image = [UIImage imageWithCGImage:[result thumbnail]];
+                            NSString *fileName = [[result defaultRepresentation] filename];
+                            NSURL *url = [[result defaultRepresentation] url];
+                            int64_t fileSize = [[result defaultRepresentation] size];
+                            
+                            NSLog(@"date = %@",date);
+                            NSLog(@"fileName = %@",fileName);
+                            NSLog(@"url = %@",url);
+                            NSLog(@"fileSize = %lld",fileSize);
+                            
+                            NSLog(@"\n");
+                            
+                            [weakself.assetsArr addObject:result];
+                        }
+                    }
+                }];
+                
+                NSLog(@"-----------------\n\n\n\n");
+            }
+            else
+            {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.p_albumCollectionView reloadData];
+                });
+            }
+        };
+        
+        ALAssetsLibraryAccessFailureBlock failureBlock = ^(NSError *error){
+            NSString *errorMessage = nil;
+            switch ([error code])
+            {
+                case ALAssetsLibraryAccessUserDeniedError:
+                case ALAssetsLibraryAccessGloballyDeniedError:
+                    errorMessage = @"The user has declined access to it";
+                    break;
+                    
+                default:
+                    errorMessage = @"Reason unknown";
+                    break;
+            }
+            
+            // alert
+        };
+        
+        NSUInteger groupTypes = ALAssetsGroupAll;
+        ALAssetsLibrary *assetsLibrary = [[ALAssetsLibrary alloc] init];
+        [assetsLibrary enumerateGroupsWithTypes:groupTypes usingBlock:listGroupBlock failureBlock:failureBlock];
+    });
 }
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
@@ -50,7 +122,7 @@
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    return 100;
+    return  100;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
@@ -68,7 +140,7 @@
 
 - (CGSize)collectionView:(UICollectionView *)collectionView collectionViewLayout:(AUUCollectionViewLayout *)collectionViewLayout sizeOfItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    return CGSizeMake(50 + arc4random_uniform(100), 10 + arc4random_uniform(150));
+    return CGSizeMake(50 + arc4random_uniform(100), 100 + arc4random_uniform(50));
 }
 
 - (BOOL)shouldCollectionViewRotationWhenDeviceOrientationWillChange:(UICollectionView *)collectionView collectionViewLayout:(AUUCollectionViewLayout *)collectionViewLayout device:(UIDevice *)device

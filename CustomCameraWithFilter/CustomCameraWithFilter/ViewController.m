@@ -8,6 +8,7 @@
 
 #import "ViewController.h"
 #import "AUUCameraViewController.h"
+#import <AssetsLibrary/AssetsLibrary.h>
 
 @interface ViewController ()
 
@@ -18,6 +19,19 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
+    
+
+    
+}
+
+- (BOOL)shouldAutorotate
+{
+    return NO;
+}
+
+- (NSUInteger)supportedInterfaceOrientations
+{
+    return UIInterfaceOrientationPortrait;
 }
 
 - (IBAction)custom:(id)sender {

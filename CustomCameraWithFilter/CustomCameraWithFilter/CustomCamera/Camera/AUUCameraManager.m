@@ -107,6 +107,7 @@ AVCaptureMetadataOutputObjectsDelegate
         self.p_deviceFlashMode = AUUDeviceFlashModeAuto;
         self.p_adjustingFocus = YES;
         self.p_wantsTakePictureWhtnFocusedOK = NO;
+        self.p_deviceOrientationWhenAppear = UIDeviceOrientationUnknown;
         
         [self setup];
         
@@ -164,10 +165,9 @@ AVCaptureMetadataOutputObjectsDelegate
         captureMetadataOutput.metadataObjectTypes = @[AVMetadataObjectTypeFace];
     }
     
-    self.p_deviceOrientationWhenAppear = [[UIDevice currentDevice] orientation];
-    
     [self.p_captureSession commitConfiguration];
     
+
     self.needCaptureFaceObjectMetadata = YES;
 }
 
@@ -175,6 +175,11 @@ AVCaptureMetadataOutputObjectsDelegate
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
 {
+    if (self.p_deviceOrientationWhenAppear == UIDeviceOrientationUnknown)
+    {
+        self.p_deviceOrientationWhenAppear = [UIDevice currentDevice].orientation;
+    }
+    
     @autoreleasepool {
         
         CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
