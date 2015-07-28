@@ -9,6 +9,17 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
+/**
+ *  @author JyHu, 15-07-23 16:07:35
+ *
+ *  控制当前使用到得输出对象
+ *
+ *  如果使用这个的话，实时做滤镜处理的图像不能显示出来
+ *
+ *  @since  v 1.0
+ */
+//#define kUseCaptureVideoLayer
+
 typedef NS_ENUM(NSUInteger, AUUCaptureDevicePosition) {
     AUUCaptureDevicePositionAuto,   //  自动选择
     AUUCaptureDevicePositionBack,   //  后置摄像头
@@ -54,38 +65,6 @@ typedef NS_ENUM(NSUInteger, AUUDeviceFlashMode) {
  */
 - (void)didCustomCameraManager:(AUUCameraManager *)cameraManager finishedAdjustingFocus:(BOOL)adjusting;
 
-/**
- *  @author JyHu, 15-07-23 17:07:12
- *
- *  如果开启了人脸识别，并且识别到了人脸的位置，会执行此方法
- *
- *  @param cameraManager self
- *  @param faceObjects   识别到的人脸信息，AVMetadataFaceObject 数组
- *  @param basedCIImage  视屏流的当前帧
- *
- *  @return 处理过的CIImage
- *
- *  @since  v 1.0
- */
-- (CIImage *)didCustomCameraManager:(AUUCameraManager *)cameraManager
-                capturedFaceObjects:(NSArray *)faceObjects
-                        withCIImage:(CIImage *)basedCIImage;
-
-/**
- *  @author JyHu, 15-07-23 17:07:27
- *
- *  视频流的每一帧的回调，每秒钟会有几十张，如果做滤镜处理的话，不能做太过复杂的处理，否则会造成卡顿的状态。
- *
- *  @param capturedFrame 获取到的当前帧的图像
- *  @param cameraManager self
- *
- *  @return 处理好的当前帧的图像
- *
- *  @since  v 1.0
- */
-- (CIImage *)reDisposeCapturedFrme:(CIImage *)capturedFrame
-                  forCameraManager:(AUUCameraManager *)cameraManager;
-
 @end
 
 @interface AUUCameraManager : NSObject
@@ -93,7 +72,7 @@ typedef NS_ENUM(NSUInteger, AUUDeviceFlashMode) {
 /**
  *  @author JyHu, 15-07-23 16:07:53
  *
- *  单利方法
+ *  单例方法
  *
  *  @return self
  *
@@ -103,6 +82,8 @@ typedef NS_ENUM(NSUInteger, AUUDeviceFlashMode) {
 
 @property (assign, nonatomic) id<AUUCameraManagerDelegate> delgate;     //  代理
 
+#ifndef kUseCaptureVideoLayer
+
 /**
  *  @author JyHu, 15-07-23 16:07:42
  *
@@ -111,6 +92,8 @@ typedef NS_ENUM(NSUInteger, AUUDeviceFlashMode) {
  *  @since  v 1.0
  */
 @property (copy, nonatomic) CIFilter *filter;
+
+#endif
 
 /**
  *  @author JyHu, 15-07-23 16:07:28
@@ -200,6 +183,8 @@ typedef NS_ENUM(NSUInteger, AUUDeviceFlashMode) {
  */
 - (void) embedPreviewInView:(UIView *)view;
 
+#ifdef kUseCaptureVideoLayer
+
 /**
  *  @author JyHu, 15-07-23 16:07:23
  *
@@ -210,6 +195,8 @@ typedef NS_ENUM(NSUInteger, AUUDeviceFlashMode) {
  *  @since  v 1.0
  */
 - (void) changePreviewOrientation:(UIInterfaceOrientation)interfaceOrientation;
+
+#endif
 
 /**
  *  @author JyHu, 15-07-23 16:07:02
@@ -252,15 +239,6 @@ typedef NS_ENUM(NSUInteger, AUUDeviceFlashMode) {
  *  @since  v 1.0
  */
 - (void) captureExit;
-
-/**
- *  @author JyHu, 15-07-23 17:07:50
- *
- *  设置是否需要人脸识别，默认的是开启
- *
- *  @since  v 1.0
- */
-@property (assign, nonatomic) BOOL needCaptureFaceObjectMetadata;
 
 /**
  *  @author JyHu, 15-07-23 18:07:49
@@ -331,5 +309,60 @@ typedef NS_ENUM(NSUInteger, AUUDeviceFlashMode) {
     [blendFilter setValue:maskImage forKey:kCIInputMaskImageKey];
 
     return blendFilter.outputImage;
+}
+*/
+
+
+
+
+/**
+ *  @author JyHu, 15-07-28 18:07:42
+ *
+ *  添加、移除人脸识别的功能
+ *
+ *  @since  v 1.0
+ */
+
+/*
+- (void)setNeedCaptureFaceObjectMetadata:(BOOL)needCaptureFaceObjectMetadata
+{
+    _needCaptureFaceObjectMetadata = needCaptureFaceObjectMetadata;
+    if (self.p_captureSession)
+    {
+        [self.p_captureSession beginConfiguration];
+
+        if (needCaptureFaceObjectMetadata)
+        {
+            AVCaptureMetadataOutput *captureMetadataOutput = [[AVCaptureMetadataOutput alloc] init];
+            [captureMetadataOutput setMetadataObjectsDelegate:self queue:dispatch_get_main_queue()];
+            if ([self.p_captureSession canAddOutput:captureMetadataOutput])
+            {
+                [self.p_captureSession addOutput:captureMetadataOutput];
+                captureMetadataOutput.metadataObjectTypes = @[AVMetadataObjectTypeFace];
+            }
+        }
+        else
+        {
+            for (AVCaptureOutput *output in self.p_captureSession.outputs)
+            {
+                if ([output isKindOfClass:[AVCaptureMetadataOutput class]])
+                {
+                    AVCaptureMetadataOutput *metadataOutput = (AVCaptureMetadataOutput *)output;
+
+                    for (NSString *availableMetadataObjectType in metadataOutput.metadataObjectTypes)
+                    {
+                        if ([availableMetadataObjectType isEqualToString:AVMetadataObjectTypeFace])
+                        {
+                            [self.p_captureSession removeOutput:metadataOutput];
+
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        [self.p_captureSession commitConfiguration];
+    }
 }
 */

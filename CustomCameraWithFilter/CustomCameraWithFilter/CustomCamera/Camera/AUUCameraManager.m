@@ -15,15 +15,6 @@
 
 static NSString *adjustingFocusKey = @"adjustingFocus";
 
-/**
- *  @author JyHu, 15-07-23 16:07:35
- *
- *  控制当前使用到得输出对象
- *
- *  @since  v 1.0
- */
-//#define kUseCaptureVideoLayer 1
-
 @interface AUUCameraManager()
 <
 AVCaptureVideoDataOutputSampleBufferDelegate,
@@ -36,6 +27,8 @@ AVCaptureMetadataOutputObjectsDelegate
 @property (assign, nonatomic) AVCaptureVideoPreviewLayer *p_captureVideoPreviewLayer;
 #else
 @property (retain, nonatomic) CALayer *p_layer;
+@property (retain, nonatomic) CIFilter *p_filter;
+@property (assign, nonatomic) UIDeviceOrientation p_deviceOrientationWhenAppear;
 #endif
 
 @property (assign, nonatomic) BOOL p_adjustingFocus;
@@ -45,11 +38,7 @@ AVCaptureMetadataOutputObjectsDelegate
 
 @property (retain, nonatomic) CIContext *p_context;
 @property (retain, nonatomic) CIImage *p_ciImage;
-@property (assign, nonatomic) CMVideoDimensions p_videoDimensions;
 @property (assign, nonatomic) BOOL p_wantsTakePictureWhtnFocusedOK;
-@property (retain, nonatomic) CIFilter *p_filter;
-@property (retain, nonatomic) NSArray *p_capturedFaceObjectsArr;
-@property (assign, nonatomic) UIDeviceOrientation p_deviceOrientationWhenAppear;
 
 
 
@@ -58,16 +47,17 @@ AVCaptureMetadataOutputObjectsDelegate
 @implementation AUUCameraManager
 
 @synthesize delgate = _delgate;
-@synthesize filter = _filter;
 @synthesize autoWriteToAlbum = _autoWriteToAlbum;
-@synthesize needCaptureFaceObjectMetadata = _needCaptureFaceObjectMetadata;
 
 @synthesize p_captureSession = _p_captureSession;
 
 #ifdef kUseCaptureVideoLayer
 @synthesize p_captureVideoPreviewLayer = _p_captureVideoPreviewLayer;
 #else
+@synthesize filter = _filter;
 @synthesize p_layer = _p_layer;
+@synthesize p_deviceOrientationWhenAppear = _p_deviceOrientationWhenAppear;
+@synthesize p_filter = _p_filter;
 #endif
 
 @synthesize p_adjustingFocus = _p_adjustingFocus;
@@ -76,11 +66,7 @@ AVCaptureMetadataOutputObjectsDelegate
 @synthesize p_captureDevicePosition = _p_captureDevicePosition;
 @synthesize p_context = _p_context;
 @synthesize p_ciImage = _p_ciImage;
-@synthesize p_videoDimensions = _p_videoDimensions;
 @synthesize p_wantsTakePictureWhtnFocusedOK = _p_wantsTakePictureWhtnFocusedOK;
-@synthesize p_filter = _p_filter;
-@synthesize p_capturedFaceObjectsArr = _p_capturedFaceObjectsArr;
-@synthesize p_deviceOrientationWhenAppear = _p_deviceOrientationWhenAppear;
 
 + (AUUCameraManager *)defaultManager
 {
@@ -100,16 +86,27 @@ AVCaptureMetadataOutputObjectsDelegate
     
     if (self)
     {
-        self.needCaptureFaceObjectMetadata = YES;
         self.autoWriteToAlbum = NO;
         self.p_deviceFlashMode = AUUDeviceFlashModeAuto;
         self.p_captureDevicePosition = AUUCaptureDevicePositionBack;
         self.p_deviceFlashMode = AUUDeviceFlashModeAuto;
         self.p_adjustingFocus = YES;
         self.p_wantsTakePictureWhtnFocusedOK = NO;
+        
+#ifndef kUseCaptureVideoLayer
         self.p_deviceOrientationWhenAppear = UIDeviceOrientationUnknown;
+#endif
         
         [self setup];
+        
+        /**
+         *  @author JyHu, 15-07-28 18:07:10
+         *
+         *  放在这里的操作很有必要，因为从滤镜处理过的CIImage中获取图片数据需要这个对象，而且这个对象是可以被复用的，但是每次的初始化是很费劲的，所以在拍照还没开始之前就初始化一下，会让拍照的时候不至于刚进入相机的时候卡顿。
+         *
+         *  @since  v 1.0
+         */
+        [self p_context];
         
         [self changeCapturePosition:self.p_captureDevicePosition];
         [self changeDeviceFlashMode:self.p_deviceFlashMode];
@@ -120,14 +117,49 @@ AVCaptureMetadataOutputObjectsDelegate
 
 - (void)setup
 {
+    /**
+     *  @author JyHu, 15-07-28 16:07:05
+     *
+     *  初始化一个输入输出流的桥接session
+     *
+     *  @since  v 1.0
+     */
     self.p_captureSession = [[AVCaptureSession alloc] init];
-    
+
+    /**
+     *  @author JyHu, 15-07-28 16:07:20
+     *
+     *  开始配置
+     *
+     *  @since  v 1.0
+     */
     [self.p_captureSession beginConfiguration];
     
+    /**
+     *  @author JyHu, 15-07-28 16:07:34
+     *
+     *  设置输入质量为高级
+     *
+     *  @since  v 1.0
+     */
     self.p_captureSession.sessionPreset = AVCaptureSessionPresetHigh;
     
+    /**
+     *  @author JyHu, 15-07-28 17:07:25
+     *
+     *  获取一个抽象的硬件设备
+     *
+     *  @since  v 1.0
+     */
     self.p_captureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-        
+    
+    /**
+     *  @author JyHu, 15-07-28 17:07:34
+     *
+     *  监听对焦的状态
+     *
+     *  @since  v 1.0
+     */
     [self.p_captureDevice addObserver:self
                            forKeyPath:adjustingFocusKey
                               options:NSKeyValueObservingOptionNew
@@ -135,84 +167,244 @@ AVCaptureMetadataOutputObjectsDelegate
     
     NSError *error;
     
+    /**
+     *  @author JyHu, 15-07-28 17:07:56
+     *
+     *  初始化一个输入设备
+     *
+     *  @since  v 1.0
+     */
     AVCaptureDeviceInput *t_captureInput = [AVCaptureDeviceInput deviceInputWithDevice:self.p_captureDevice error:&error];
     
-    if (error)
-    {
-        NSLog(@"%@", [error localizedDescription]);
-    }
     if ([self.p_captureSession canAddInput:t_captureInput])
     {
+        /**
+         *  @author JyHu, 15-07-28 17:07:10
+         *
+         *  判断并为session加入一个输入设备
+         *
+         *  @since  v 1.0
+         */
         [self.p_captureSession addInput:t_captureInput];
     }
     
+    /**
+     *  @author JyHu, 15-07-28 17:07:36
+     *
+     *  初始化一个视频流的输出对象
+     *
+     *  @since  v 1.0
+     */
     AVCaptureVideoDataOutput *captureVideoDataOutput = [[AVCaptureVideoDataOutput alloc] init];
+    
+    /**
+     *  @author JyHu, 15-07-28 17:07:17
+     *
+     *  设置视频的编码和解码格式
+     *
+     *  现在支持的只有：kCVPixelBufferPixelFormatTypeKey
+     *
+     *      - kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
+     *      - kCVPixelFormatType_420YpCbCr8BiPlanarFullRange
+     *      - kCVPixelFormatType_32BGRA.
+     *
+     *  @since  v 1.0
+     */
     captureVideoDataOutput.videoSettings = @{(__bridge id)kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32BGRA)};
+    
+    /**
+     *  @author JyHu, 15-07-28 17:07:36
+     *
+     *  当视频的下一帧有图像的时候，是否丢弃当前未被处理的帧图像。
+     *
+     *  @since  v 1.0
+     */
     captureVideoDataOutput.alwaysDiscardsLateVideoFrames = YES;
+    
+    
     if ([self.p_captureSession canAddOutput:captureVideoDataOutput])
     {
+        /**
+         *  @author JyHu, 15-07-28 17:07:50
+         *
+         *  判断并加入输出对象
+         *
+         *  @since  v 1.0
+         */
         [self.p_captureSession addOutput:captureVideoDataOutput];
     }
     
+    /**
+     *  @author JyHu, 15-07-28 17:07:17
+     *
+     *  创建一条串行的gcd queue
+     *
+     *  因为视频的输出流可以放到异步线程中处理
+     *
+     *  @since  v 1.0
+     */
     dispatch_queue_t queue = dispatch_queue_create("VideoQueue", DISPATCH_QUEUE_SERIAL);
+    
+    /**
+     *  @author JyHu, 15-07-28 17:07:59
+     *
+     *  将视频流的代理设置到线程中
+     *
+     *  @since  v 1.0
+     */
     [captureVideoDataOutput setSampleBufferDelegate:self queue:queue];
     
+    /**
+     *  @author JyHu, 15-07-28 17:07:58
+     *
+     *  初始化一个元数据的输出流对象
+     *
+     *  @since  v 1.0
+     */
     AVCaptureMetadataOutput *captureMetadataOutput = [[AVCaptureMetadataOutput alloc] init];
+    /**
+     *  @author JyHu, 15-07-28 17:07:58
+     *
+     *  将元数据的输出代理放到主线程中，因为元数据的获取不是像视频流的输出一直都有的
+     *
+     *  @since  v 1.0
+     */
     [captureMetadataOutput setMetadataObjectsDelegate:self queue:dispatch_get_main_queue()];
     if ([self.p_captureSession canAddOutput:captureMetadataOutput])
     {
+        /**
+         *  @author JyHu, 15-07-28 17:07:46
+         *
+         *  为当前的session添加元数据的输出端口
+         *
+         *  @since  v 1.0
+         */
         [self.p_captureSession addOutput:captureMetadataOutput];
+        
+        /**
+         *  @author JyHu, 15-07-28 17:07:06
+         *
+         *  设置需要扫描到的元数据类型为人脸
+         *
+         *  @since  v 1.0
+         */
         captureMetadataOutput.metadataObjectTypes = @[AVMetadataObjectTypeFace];
     }
     
     [self.p_captureSession commitConfiguration];
     
-
-    self.needCaptureFaceObjectMetadata = YES;
+    /**
+     *  @author JyHu, 15-07-28 17:07:34
+     *
+     *  当有其他事务打断当前session的时候
+     *
+     *  @since  v 1.0
+     */
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(captureSessonInterrupted)
+                                                 name:AVCaptureSessionWasInterruptedNotification
+                                               object:nil];
+    
+    /**
+     *  @author JyHu, 15-07-28 17:07:01
+     *
+     *  当其他的事务对当前的session打断接触的时候
+     *
+     *  @since  v 1.0
+     */
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(captureSessionEndInterrupted)
+                                                 name:AVCaptureSessionInterruptionEndedNotification
+                                               object:nil];
 }
 
 #pragma mark - AVCaptureVideoDataOutputSampleBufferDelegate
 
-- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
+/**
+ *  @author JyHu, 15-07-28 17:07:12
+ *
+ *  视频输出流捕捉到每一帧的时候都会调用这个代理方法
+ *
+ *  @param captureOutput <#captureOutput description#>
+ *  @param sampleBuffer  <#sampleBuffer description#>
+ *  @param connection    <#connection description#>
+ *
+ *  @since  v 1.0
+ */
+- (void)captureOutput:(AVCaptureOutput *)captureOutput
+                didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
+                       fromConnection:(AVCaptureConnection *)connection
 {
+    
+#ifndef kUseCaptureVideoLayer
+    
     if (self.p_deviceOrientationWhenAppear == UIDeviceOrientationUnknown)
     {
+        /**
+         *  @author JyHu, 15-07-28 18:07:16
+         *
+         *  缓存初始的时候的屏幕的方向
+         *
+         *  @since  v 1.0
+         */
         self.p_deviceOrientationWhenAppear = [UIDevice currentDevice].orientation;
     }
     
+#endif
+    
     @autoreleasepool {
         
+        /**
+         *  @author JyHu, 15-07-28 17:07:10
+         *
+         *  CVImageBufferRef   Base type for all CoreVideo image buffers，所有的CoreVideo的图形数据流的基础类型
+         *
+         *  sampleBuffer 当前的多媒体流对象所携带的所有数据
+         *
+         *  CMSampleBufferGetImageBuffer  从当前的流中获取CVImageBufferRef
+         *
+         *  @since  v 1.0
+         */
         CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
         
-        CMFormatDescriptionRef formateDescription = CMSampleBufferGetFormatDescription(sampleBuffer);
-        
-        self.p_videoDimensions = CMVideoFormatDescriptionGetDimensions(formateDescription);
-        
+        /**
+         *  @author JyHu, 15-07-28 17:07:18
+         *
+         *  获取到CIImage ，这个是进行滤镜处理的图形数据对象
+         *
+         *  @since  v 1.0
+         */
         CIImage *outputImage = [CIImage imageWithCVPixelBuffer:imageBuffer];
+        
+#ifndef kUseCaptureVideoLayer
         
         if (self.p_filter != nil)
         {
+            /**
+             *  @author JyHu, 15-07-28 17:07:49
+             *
+             *  如果外部有添加的滤镜对象，可以直接添加进来在这里进行处理
+             *
+             *  @since  v 1.0
+             */
             [self.p_filter setValue:outputImage forKey:kCIInputImageKey];
             
             outputImage = self.p_filter.outputImage;
         }
         
-        if (self.p_capturedFaceObjectsArr != nil)
-        {
-            if (self.delgate && [self.delgate respondsToSelector:@selector(didCustomCameraManager:capturedFaceObjects:withCIImage:)])
-            {
-                outputImage = [self.delgate didCustomCameraManager:self capturedFaceObjects:self.p_capturedFaceObjectsArr withCIImage:outputImage];
-            }
-        }
-        
-        if (self.delgate && [self.delgate respondsToSelector:@selector(reDisposeCapturedFrme:forCameraManager:)])
-        {
-            outputImage = [self.delgate reDisposeCapturedFrme:outputImage forCameraManager:self];
-        }
-        
+#endif
+
         CGFloat angle;
         
         UIDeviceOrientation orientation;
+        
+        /**
+         *  @author JyHu, 15-07-28 17:07:47
+         *
+         *  根据屏幕的方向来对输入的视频流进行旋转变换
+         *
+         *  @since  v 1.0
+         */
         
 #ifdef kUseCaptureVideoLayer
         orientation = [UIDevice currentDevice].orientation;
@@ -251,6 +443,13 @@ AVCaptureMetadataOutputObjectsDelegate
             self.p_layer.contents = (__bridge id)(cgImage);
 #endif
             
+            /**
+             *  @author JyHu, 15-07-28 17:07:30
+             *
+             *  一定要release，否则会程序内存爆增导致崩溃。
+             *
+             *  @since  v 1.0
+             */
             CGImageRelease(cgImage);
         });
     }
@@ -258,26 +457,42 @@ AVCaptureMetadataOutputObjectsDelegate
 
 #pragma mark - AVCaptureMetadataOutputObjectsDelegate
 
+/**
+ *  @author JyHu, 15-07-28 17:07:46
+ *
+ *  每次捕捉到元数据的时候都会调用这个方法
+ *
+ *  @param captureOutput   <#captureOutput description#>
+ *  @param metadataObjects <#metadataObjects description#>
+ *  @param connection      <#connection description#>
+ *
+ *  @since  v 1.0
+ */
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects fromConnection:(AVCaptureConnection *)connection
 {
     if (metadataObjects.count > 0)
     {
-        self.p_capturedFaceObjectsArr = metadataObjects;
+        /**
+         *  @author JyHu, 15-07-28 17:07:06
+         *
+         *  对元数据的处理
+         *
+         *  @since  v 1.0
+         */
     }
 }
 
 #pragma mark - Help methods
 
-- (void)showMessage:(NSString *)msg
-{
-    UIAlertView *avw = [[UIAlertView alloc] initWithTitle:@"Warning"
-                                                  message:msg
-                                                 delegate:nil
-                                        cancelButtonTitle:@"Sure"
-                                        otherButtonTitles:nil, nil];
-    [avw show];
-}
-
+/**
+ *  @author JyHu, 15-07-28 17:07:15
+ *
+ *  获取指定位置的硬件设备
+ *
+ *  @param position 设备的位置
+ *
+ *  @since  v 1.0
+ */
 - (AVCaptureDevice *)cameraWithPosition:(AVCaptureDevicePosition)position
 {
     NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
@@ -310,13 +525,12 @@ AVCaptureMetadataOutputObjectsDelegate
     {
         if (self.autoWriteToAlbum)
         {
+            /**
+             将照片存到相册
+             */
             [[[ALAssetsLibrary alloc] init] writeImageToSavedPhotosAlbum:cgImage metadata:_p_ciImage.properties completionBlock:^(NSURL *assetURL, NSError *error) {
                 
-                if (error)
-                {
-                    [self showMessage:[error localizedDescription]];
-                }
-                else
+                if (!error)
                 {
                     [_delgate didCustomCameraManager:self
                             finishedCaptureWithImage:[UIImage imageWithCGImage:cgImage]
@@ -369,6 +583,8 @@ AVCaptureMetadataOutputObjectsDelegate
     return _p_context;
 }
 
+#ifndef kUseCaptureVideoLayer
+
 - (void)setFilter:(CIFilter *)filter
 {
     if (filter)
@@ -391,6 +607,8 @@ AVCaptureMetadataOutputObjectsDelegate
     return nil;
 }
 
+#endif
+
 - (BOOL)adjustingFocus
 {
     return self.p_adjustingFocus;
@@ -404,53 +622,6 @@ AVCaptureMetadataOutputObjectsDelegate
 - (AUUDeviceFlashMode)deviceFlashMode
 {
     return self.p_deviceFlashMode;
-}
-
-- (void)setNeedCaptureFaceObjectMetadata:(BOOL)needCaptureFaceObjectMetadata
-{
-    _needCaptureFaceObjectMetadata = needCaptureFaceObjectMetadata;
-    if (self.p_captureSession)
-    {
-        [self.p_captureSession beginConfiguration];
-        
-        if (needCaptureFaceObjectMetadata)
-        {
-            AVCaptureMetadataOutput *captureMetadataOutput = [[AVCaptureMetadataOutput alloc] init];
-            [captureMetadataOutput setMetadataObjectsDelegate:self queue:dispatch_get_main_queue()];
-            if ([self.p_captureSession canAddOutput:captureMetadataOutput])
-            {
-                [self.p_captureSession addOutput:captureMetadataOutput];
-                captureMetadataOutput.metadataObjectTypes = @[AVMetadataObjectTypeFace];
-            }
-        }
-        else
-        {
-            for (AVCaptureOutput *output in self.p_captureSession.outputs)
-            {
-                if ([output isKindOfClass:[AVCaptureMetadataOutput class]])
-                {
-                    AVCaptureMetadataOutput *metadataOutput = (AVCaptureMetadataOutput *)output;
-                    
-                    for (NSString *availableMetadataObjectType in metadataOutput.metadataObjectTypes)
-                    {
-                        if ([availableMetadataObjectType isEqualToString:AVMetadataObjectTypeFace])
-                        {
-                            [self.p_captureSession removeOutput:metadataOutput];
-                            
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        
-        [self.p_captureSession commitConfiguration];
-    }
-}
-
-- (BOOL)needCaptureFaceObjectMetadata
-{
-    return _needCaptureFaceObjectMetadata;
 }
 
 #pragma mark - Handle methods
@@ -489,6 +660,16 @@ AVCaptureMetadataOutputObjectsDelegate
         return;
     }
     
+    /**
+     *  @author JyHu, 15-07-28 18:07:01
+     *
+     *  AVCaptureVideoPreviewLayer  这个是摄像头实时获取数据显示的layer，所以没法做滤镜处理，如果只是做简单的相机的话，用这个也就够了。
+     *
+     *  如果想要做实时滤镜处理的话，那就用CALayer了。
+     *
+     *  @since  v 1.0
+     */
+    
 #ifdef kUseCaptureVideoLayer
     self.p_captureVideoPreviewLayer = [AVCaptureVideoPreviewLayer layerWithSession:self.p_captureSession];
     self.p_captureVideoPreviewLayer.frame = view.bounds;
@@ -503,11 +684,10 @@ AVCaptureMetadataOutputObjectsDelegate
     
 }
 
+#ifdef kUseCaptureVideoLayer
+
 - (void) changePreviewOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
-    NSLog(@" -  %@  - ", @(interfaceOrientation));
-    
-#ifdef kUseCaptureVideoLayer
     if (!self.p_captureVideoPreviewLayer)
     {
         return;
@@ -533,9 +713,9 @@ AVCaptureMetadataOutputObjectsDelegate
     }
     
     [CATransaction commit];
-#endif
-    
 }
+
+#endif
 
 - (void) changeCapturePosition:(AUUCaptureDevicePosition)position
 {
@@ -647,7 +827,8 @@ AVCaptureMetadataOutputObjectsDelegate
 
 - (void)dealloc
 {
-    
+    [[NSNotificationCenter defaultCenter] removeObserver:self forKeyPath:AVCaptureSessionWasInterruptedNotification];
+    [[NSNotificationCenter defaultCenter] removeObserver:self forKeyPath:AVCaptureSessionInterruptionEndedNotification];
 }
 
 - (void)captureExit
@@ -665,14 +846,31 @@ AVCaptureMetadataOutputObjectsDelegate
     self.p_captureVideoPreviewLayer = nil;
 #else
     self.p_layer = nil;
+    self.p_filter = nil;
+    self.filter = nil;
 #endif
     
     self.p_ciImage = nil;
     self.p_context = nil;
-    self.p_capturedFaceObjectsArr = nil;
     self.p_captureDevice = nil;
-    self.p_filter = nil;
-    self.filter = nil;
+}
+
+#pragma mark - notification
+
+- (void)captureSessonInterrupted
+{
+    if (self.p_captureSession)
+    {
+        [self stopRunning];
+    }
+}
+
+- (void)captureSessionEndInterrupted
+{
+    if (self.p_captureSession)
+    {
+        [self startRunning];
+    }
 }
 
 @end

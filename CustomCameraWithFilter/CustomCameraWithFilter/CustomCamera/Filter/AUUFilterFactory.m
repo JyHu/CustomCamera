@@ -52,7 +52,6 @@ NSString *filterNameWithType(AUUFilterType type)
 + (CIFilter *)filterWithType:(AUUFilterType)filterType
 {
     NSString *f = filterNameWithType(filterType);
-    NSLog(@"%@ - %@", f, @(filterType));
     return [CIFilter filterWithName:f];
 }
 

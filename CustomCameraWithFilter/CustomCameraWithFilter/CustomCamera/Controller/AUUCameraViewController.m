@@ -926,7 +926,7 @@ static CGFloat commonTipsLabelHeight = 20.0f;
 
 - (void)dealloc
 {
-    NSLog(@"VC");
+    
 }
 
 @end
