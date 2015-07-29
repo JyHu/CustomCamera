@@ -29,6 +29,7 @@ AVCaptureMetadataOutputObjectsDelegate
 @property (retain, nonatomic) CALayer *p_layer;
 @property (retain, nonatomic) CIFilter *p_filter;
 @property (assign, nonatomic) UIDeviceOrientation p_deviceOrientationWhenAppear;
+@property (retain, nonatomic) UIView *p_cachedPreviewView;
 #endif
 
 @property (assign, nonatomic) BOOL p_adjustingFocus;
@@ -39,6 +40,8 @@ AVCaptureMetadataOutputObjectsDelegate
 @property (retain, nonatomic) CIContext *p_context;
 @property (retain, nonatomic) CIImage *p_ciImage;
 @property (assign, nonatomic) BOOL p_wantsTakePictureWhtnFocusedOK;
+
+
 
 
 
@@ -58,6 +61,7 @@ AVCaptureMetadataOutputObjectsDelegate
 @synthesize p_layer = _p_layer;
 @synthesize p_deviceOrientationWhenAppear = _p_deviceOrientationWhenAppear;
 @synthesize p_filter = _p_filter;
+@synthesize p_cachedPreviewView = _p_cachedPreviewView;
 #endif
 
 @synthesize p_adjustingFocus = _p_adjustingFocus;
@@ -292,30 +296,6 @@ AVCaptureMetadataOutputObjectsDelegate
     }
     
     [self.p_captureSession commitConfiguration];
-    
-    /**
-     *  @author JyHu, 15-07-28 17:07:34
-     *
-     *  当有其他事务打断当前session的时候
-     *
-     *  @since  v 1.0
-     */
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(captureSessonInterrupted)
-                                                 name:AVCaptureSessionWasInterruptedNotification
-                                               object:nil];
-    
-    /**
-     *  @author JyHu, 15-07-28 17:07:01
-     *
-     *  当其他的事务对当前的session打断接触的时候
-     *
-     *  @since  v 1.0
-     */
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(captureSessionEndInterrupted)
-                                                 name:AVCaptureSessionInterruptionEndedNotification
-                                               object:nil];
 }
 
 #pragma mark - AVCaptureVideoDataOutputSampleBufferDelegate
@@ -566,6 +546,24 @@ AVCaptureMetadataOutputObjectsDelegate
             [self takePicture];
         }
     }
+    else if ([keyPath isEqualToString:@"frame"] && object == self.p_cachedPreviewView)
+    {
+        CGRect newRect = [[change objectForKey:@"new"] CGRectValue];
+        CGRect oldRect = [[change objectForKey:@"old"] CGRectValue];
+        
+        CGFloat nw = CGRectGetWidth(newRect);
+        CGFloat nh = CGRectGetHeight(newRect);
+        CGFloat ow = CGRectGetWidth(oldRect);
+        CGFloat oh = CGRectGetHeight(oldRect);
+        CGFloat sw = CGRectGetWidth([UIScreen mainScreen].bounds);
+        CGFloat sh = CGRectGetHeight([UIScreen mainScreen].bounds);
+        
+        NSTimeInterval timeInterval = fabs(sqrt(pow(nw, 2) + pow(nh, 2)) - sqrt(pow(ow, 2) + pow(oh, 2))) / sqrt(pow(sw, 2) + pow(sh, 2)) * 0.5;
+        
+        [UIView animateWithDuration:timeInterval animations:^{
+            self.p_layer.frame = [[change objectForKey:@"new"] CGRectValue];
+        }];
+    }
 }
 
 #pragma mark - Getter & Setter methods
@@ -655,7 +653,7 @@ AVCaptureMetadataOutputObjectsDelegate
 
 - (void) embedPreviewInView:(UIView *)view
 {
-    if (!self.p_captureSession)
+    if (!self.p_captureSession && !view)
     {
         return;
     }
@@ -679,7 +677,9 @@ AVCaptureMetadataOutputObjectsDelegate
     self.p_layer = [CALayer layer];
     self.p_layer.anchorPoint = CGPointZero;
     self.p_layer.bounds = view.bounds;
-    [view.layer insertSublayer:self.p_layer atIndex:0];
+    self.p_cachedPreviewView = view;
+    [self.p_cachedPreviewView.layer insertSublayer:self.p_layer atIndex:0];
+    [self.p_cachedPreviewView addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
 #endif
     
 }
@@ -827,8 +827,7 @@ AVCaptureMetadataOutputObjectsDelegate
 
 - (void)dealloc
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self forKeyPath:AVCaptureSessionWasInterruptedNotification];
-    [[NSNotificationCenter defaultCenter] removeObserver:self forKeyPath:AVCaptureSessionInterruptionEndedNotification];
+    [self removeObserver:self.p_cachedPreviewView forKeyPath:@"frame"];
 }
 
 - (void)captureExit
@@ -853,24 +852,6 @@ AVCaptureMetadataOutputObjectsDelegate
     self.p_ciImage = nil;
     self.p_context = nil;
     self.p_captureDevice = nil;
-}
-
-#pragma mark - notification
-
-- (void)captureSessonInterrupted
-{
-    if (self.p_captureSession)
-    {
-        [self stopRunning];
-    }
-}
-
-- (void)captureSessionEndInterrupted
-{
-    if (self.p_captureSession)
-    {
-        [self startRunning];
-    }
 }
 
 @end

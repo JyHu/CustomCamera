@@ -115,8 +115,8 @@ static CGFloat commonTipsLabelHeight = 20.0f;
         self.p_cameraManager.delgate = self;
         [self.p_cameraManager startRunning];
         
-        self.p_preView = [[UIView alloc] initWithFrame:self.view.bounds];
-        self.p_preView.backgroundColor = [UIColor clearColor];
+        self.p_preView = [[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds];
+        self.p_preView.backgroundColor = [UIColor blueColor];
         self.p_preView.alpha = 0;
         [self.p_cameraManager embedPreviewInView:self.p_preView];
         [self.view addSubview:self.p_preView];
@@ -131,56 +131,67 @@ static CGFloat commonTipsLabelHeight = 20.0f;
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    if (self.p_cameraPositionMenuViewable || self.p_flashModeMenuViewable)
-    {
-        if (self.p_cameraPositionMenuViewable)
-        {
-            if (self.p_currentInPreview)
-            {
-                [self cancelChangeCameraPositionMenuWithNOAnimation];
-                
-                if (!self.p_tipsLabelHidden)
-                {
-                    [self clearTips];
-                }
-            }
-            else
-            {
-                [self cancelChangeCameraPositionMenuWithAnimation];
-            }
-        }
-        
-        if (self.p_flashModeMenuViewable)
-        {
-            if (self.p_currentInPreview)
-            {
-                [self cancelchangeFlashModeMenuWithNOAnimation];
-                
-                if (!self.p_tipsLabelHidden)
-                {
-                    [self clearTips];
-                }
-            }
-            else
-            {
-                [self cancelchangeFlashModeMenuWithAnimation];
-            }
-        }
-    }
-    else if (!self.p_tipsLabelHidden)
-    {
-        [self clearTips];
-    }
+    UITouch *touch = touches.anyObject;
     
-    if (self.p_cameraManager)
+    CGPoint pt = [touch locationInView:self.p_preView];
+    
+    if (CGRectContainsPoint(self.p_preView.frame, pt))
     {
-        UITouch *touch = touches.anyObject;
+        if (self.p_cameraPositionMenuViewable || self.p_flashModeMenuViewable)
+        {
+            if (self.p_cameraPositionMenuViewable)
+            {
+                if (self.p_currentInPreview)
+                {
+                    [self cancelChangeCameraPositionMenuWithNOAnimation];
+                    
+                    if (!self.p_tipsLabelHidden)
+                    {
+                        [self clearTips];
+                    }
+                }
+                else
+                {
+                    [self cancelChangeCameraPositionMenuWithAnimation];
+                }
+            }
+            
+            if (self.p_flashModeMenuViewable)
+            {
+                if (self.p_currentInPreview)
+                {
+                    [self cancelchangeFlashModeMenuWithNOAnimation];
+                    
+                    if (!self.p_tipsLabelHidden)
+                    {
+                        [self clearTips];
+                    }
+                }
+                else
+                {
+                    [self cancelchangeFlashModeMenuWithAnimation];
+                }
+            }
+        }
+        else if (!self.p_tipsLabelHidden)
+        {
+            [self clearTips];
+        }
         
-        CGPoint touchPoint = [touch locationInView:self.p_preView];
+        if (self.p_cameraManager)
+        {
+            UITouch *touch = touches.anyObject;
+            
+            CGPoint touchPoint = [touch locationInView:self.p_preView];
+            
+            CGPoint pt = CGPointMake(touchPoint.x / self.p_preView.W, touchPoint.y / self.p_preView.H);
+            
+            [self.p_cameraManager focusAtPoint:pt];
+        }
+    }
+    else
+    {
         
-        CGPoint pt = CGPointMake(touchPoint.x / self.p_preView.W, touchPoint.y / self.p_preView.H);
-        
-        [self.p_cameraManager focusAtPoint:pt];
     }
 }
 
