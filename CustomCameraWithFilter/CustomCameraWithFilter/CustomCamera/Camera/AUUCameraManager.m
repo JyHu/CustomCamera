@@ -411,6 +411,7 @@ AVCaptureMetadataOutputObjectsDelegate
         
         outputImage = [outputImage imageByApplyingTransform:CGAffineTransformMakeRotation(angle)];
         
+        // 1080w * 1920h
         CGImageRef cgImage = [self.p_context createCGImage:outputImage fromRect:outputImage.extent];
         
         self.p_ciImage = outputImage;
