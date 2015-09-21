@@ -87,18 +87,20 @@ static CGFloat commonTipsLabelHeight = 20.0f;
     return NO;
 }
 
-- (NSUInteger)supportedInterfaceOrientations
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations
 {
-    return UIInterfaceOrientationPortrait;
+    return UIInterfaceOrientationMaskPortrait;
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
-    
+    [super viewWillAppear:animated];
 }
 
 - (void)viewDidAppear:(BOOL)animated
 {
+    [super viewDidAppear:animated];
+    
     if (self.p_cameraManager)
     {
         [self.p_cameraManager startRunning];

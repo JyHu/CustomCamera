@@ -47,6 +47,7 @@
     // Output image is ready.
     UIImage *outputImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
+    CGImageRelease(cgImage);
     
     return outputImage;
 }

@@ -274,6 +274,7 @@ AVCaptureMetadataOutputObjectsDelegate
      *  @since  v 1.0
      */
     [captureMetadataOutput setMetadataObjectsDelegate:self queue:dispatch_get_main_queue()];
+    
     if ([self.p_captureSession canAddOutput:captureMetadataOutput])
     {
         /**
@@ -527,6 +528,8 @@ AVCaptureMetadataOutputObjectsDelegate
                                     assetURL:nil];
         }
     }
+    
+    CGImageRelease(cgImage);
 }
 
 #pragma mark - KVO

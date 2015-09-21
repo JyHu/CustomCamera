@@ -106,7 +106,9 @@
                     break;
             }
             
-            // alert
+#warning - alert
+            
+            NSLog(@"%@", errorMessage);
         };
         
         NSUInteger groupTypes = ALAssetsGroupAll;

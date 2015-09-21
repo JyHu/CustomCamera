@@ -29,9 +29,9 @@
     return NO;
 }
 
-- (NSUInteger)supportedInterfaceOrientations
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations
 {
-    return UIInterfaceOrientationPortrait;
+    return UIInterfaceOrientationMaskPortrait;
 }
 
 - (IBAction)custom:(id)sender {

@@ -127,7 +127,7 @@
 
 - (CGSize)collectionViewContentSize
 {
-    CGFloat maxDistance;
+    CGFloat maxDistance = 0;
     
     if (_p_distanceOfRowsArr && [_p_distanceOfRowsArr count] != 0)
     {
